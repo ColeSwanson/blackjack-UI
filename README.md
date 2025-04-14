@@ -1,5 +1,5 @@
 # Blackjack with Virutal Interface
-## Team Members: Dawson Crowley, Sam Schmidt, Cole Swanson, George Venzke 
+### Team Members: Dawson Crowley, Sam Schmidt, Cole Swanson, George Venzke 
 
 This is the user interface for the virtual black jack player and dealer screen supplying instructions.
 
