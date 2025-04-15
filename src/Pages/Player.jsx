@@ -1,13 +1,51 @@
+import { signOut } from 'firebase/auth';
 import React from 'react';
+import { auth } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const Player = () => {
     const playerName = "Alice"; // TODO: we will need to get this from firebase
     const cards = [[1, "S"], [11, "H"]]; // TODO: we will need to get this from firebase once we have the user
     const dealerCards = [[10, "D"], [7, "H"]]; // TODO: we will need to get this from firebase
     const showSecondDealerCard = false; // Boolean to control whether the second card is displayed
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        signOut(auth).then(() => {
+            console.log("User logged out");
+            navigate('/'); // Redirect to login page after logout
+        }).catch((error) => {
+            console.error("Error logging out:", error);
+        });
+    }
 
     return (
         <>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 20px' }}>
+                <button
+                onClick={handleLogout}
+                style={{
+                    padding: '8px 15px',
+                    fontSize: '16px',
+                    backgroundColor: '#6c757d',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s, transform 0.2s'
+                }}
+                onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#5a6268';
+                    e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#6c757d';
+                    e.target.style.transform = 'scale(1)';
+                }}
+                >
+                    Logout
+                </button>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <button
                     style={{
@@ -18,7 +56,7 @@ const Player = () => {
                         color: '#fff',
                         cursor: 'pointer'
                     }}
-                    onClick={() => window.location.href = '/'}
+                    onClick={() => navigate('/')}
                 >
                     Home
                 </button>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -9,6 +11,8 @@ const Signup = () => {
     });
 
     const [error, setError] = useState('');
+
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,7 +30,11 @@ const Signup = () => {
             return;
         }
         console.log('Form Data Submitted:', formData);
-        // Add your sign-up logic here
+        const auth = getAuth();
+        createUserWithEmailAndPassword(auth, email, password)
+        .catch((error) => {
+            console.error(`Error [${error.code}]: ${error.message}`);
+        })
     };
 
     return (
@@ -142,7 +150,7 @@ const Signup = () => {
             <div style={{ textAlign: 'center', marginTop: '15px' }}>
                 <p style={{ marginBottom: '10px', color: '#555' }}>Already have an account?</p>
                 <button
-                    onClick={() => window.location.href = '/login'}
+                    onClick={() => navigate('/login')}
                     style={{
                         padding: '10px',
                         backgroundColor: '#6c757d',

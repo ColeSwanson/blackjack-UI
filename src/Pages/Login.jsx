@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const auth = getAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Email:', email);
-        console.log('Password:', password);
-        // Add your login logic here
+        const userCredential = await signInWithEmailAndPassword(auth, email, password).then((userCredential) => { 
+            console.log('User logged in:', userCredential.user);
+            navigate('/player');
+        }).catch((error) => {
+            console.error('Error logging in:', error.message);
+            alert('Login failed. Please check your credentials.');
+        });
     };
 
     return (
@@ -86,7 +94,7 @@ const Login = () => {
                 }}>
                     Login
                 </button>
-                <button type="button" onClick={() => window.location.href = '/signup'} style={{
+                <button type="button" onClick={() => navigate('/signup')} style={{
                     width: '100%',
                     padding: '10px',
                     backgroundColor: '#6c757d',
