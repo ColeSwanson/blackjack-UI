@@ -94,6 +94,7 @@ const Login = () => {
                 }}>
                     Login
                 </button>
+                <p style={{ marginBottom: '10px', color: '#555' }}>Are you new here?</p>
                 <button type="button" onClick={() => navigate('/signup')} style={{
                     width: '100%',
                     padding: '10px',

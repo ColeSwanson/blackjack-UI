@@ -16,8 +16,8 @@ function Welcome() {
   };
 
   return (
-    <div style={{ height: '100vh', backgroundColor: '#f0f8ff', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 20px' }}>
+    <div style={{ height: '90vh', backgroundColor: '#ffffff', textAlign: 'center', display: 'flex', flexDirection: 'column', margin: '0', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ position: 'absolute', top: '10px', right: '20px' }}>
         <button
           onClick={handleLoginLogout}
           style={{
@@ -42,7 +42,7 @@ function Welcome() {
           {user ? 'Logout' : 'Login / Sign Up'}
         </button>
       </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 20px' }}>
         <h1 style={{ marginBottom: '20px', color: '#333', fontSize: '2.5rem' }}>Welcome to the Blackjack Virtual Environment!</h1>
         <p style={{ marginBottom: '30px', color: '#555', fontSize: '1.2rem', textAlign: 'center', maxWidth: '600px' }}>
           The decisions you make will be communicated to the in-person dealer, who will scan and play your cards alongside other virtual and in-person players. 

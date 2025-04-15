@@ -18,7 +18,7 @@ const Dealer = () => {
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: '20px' }}>
                 <button 
                     style={{ 
                         padding: '10px 15px', 
