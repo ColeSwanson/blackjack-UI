@@ -39,7 +39,7 @@ function Welcome() {
             e.target.style.transform = 'scale(1)';
           }}
         >
-          {user ? 'Logout' : 'Login'}
+          {user ? 'Logout' : 'Login / Sign Up'}
         </button>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
