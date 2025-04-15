@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.jsx";
+import Loading from "./Pages/Loading.jsx";
 
 
 const Player = lazy(() => import('./Pages/Player.jsx'));
@@ -16,9 +17,7 @@ const AppRoutes = () => {
     return (
         <Suspense
             fallback={
-                <div className="flex h-screen items-center justify-center">
-                    Loading...
-                </div>
+                <Loading/>
             }
         >
             <Routes>
