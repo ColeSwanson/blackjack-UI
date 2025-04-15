@@ -11,10 +11,8 @@ const Player = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        signOut(auth).then(() => {
-            console.log("User logged out");
-            navigate('/'); // Redirect to login page after logout
-        }).catch((error) => {
+        navigate('/');
+        signOut(auth).catch((error) => {
             console.error("Error logging out:", error);
         });
     }
