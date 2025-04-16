@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const Signup = () => {
     const [formData, setFormData] = useState({
         email: '',
-        username: '',
+        displayName: '',
         password: '',
         confirmPassword: '',
     })
@@ -28,10 +28,10 @@ const Signup = () => {
             setError('Passwords do not match');
             return;
         }
-        createUserWithEmailAndPassword(auth, formData.email, formData.password, formData.username)
+        createUserWithEmailAndPassword(auth, formData.email, formData.password, formData.displayName)
         .then((UserCredential) => {
             updateProfile(UserCredential.user, {
-                displayName: formData.username,
+                displayName: formData.displayName,
             })
             navigate('/');
         })
@@ -79,12 +79,12 @@ const Signup = () => {
                         />
                     </div>
                     <div style={{ marginBottom: '15px' }}>
-                        <label htmlFor="username" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Username</label>
+                        <label htmlFor="displayName" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Display Name</label>
                         <input
                             type="text"
-                            id="username"
-                            name="username"
-                            value={formData.username}
+                            id="displayName"
+                            name="displayName"
+                            value={formData.displayName}
                             onChange={handleChange}
                             required
                             style={{
