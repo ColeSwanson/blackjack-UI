@@ -2,9 +2,10 @@ import { signOut } from 'firebase/auth';
 import React from 'react';
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Player = () => {
-    const playerName = "Alice"; // TODO: we will need to get this from firebase
+    const { user } = useAuth(); 
     const cards = [[1, "S"], [11, "H"]]; // TODO: we will need to get this from firebase once we have the user
     const dealerCards = [[10, "D"], [7, "H"]]; // TODO: we will need to get this from firebase
     const showSecondDealerCard = false; // Boolean to control whether the second card is displayed
@@ -108,7 +109,7 @@ const Player = () => {
                         })}
                     </div>
                 </div>
-                <h2 style={{ textAlign: 'center', color: '#333' }}>{playerName}</h2>
+                <h2 style={{ textAlign: 'center', color: '#333' }}>{user.displayName}</h2>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
                     {cards.map((card, index) => {
                         const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];

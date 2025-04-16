@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import React, { use, useState } from 'react';
+import { createUserWithEmailAndPassword, getAuth, updateCurrentUser, updateProfile } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
@@ -28,9 +28,12 @@ const Signup = () => {
             setError('Passwords do not match');
             return;
         }
-        createUserWithEmailAndPassword(auth, formData.email, formData.password)
-        .then((userCredential) => {
-            navigate('/player'); // Redirect to player page after signup
+        createUserWithEmailAndPassword(auth, formData.email, formData.password, formData.username)
+        .then((UserCredential) => {
+            updateProfile(UserCredential.user, {
+                displayName: formData.username,
+            })
+            navigate('/');
         })
         .catch((error) => {
             console.error(`Error [${error.code}]: ${error.message}`);
