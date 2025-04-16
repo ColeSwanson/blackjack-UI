@@ -3,17 +3,18 @@ import React from 'react';
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import getRandomCard from '../Data/cards';
 
 const Player = () => {
     const { user } = useAuth(); 
-    const cards = [[1, "S"], [11, "H"]]; // TODO: we will need to get this from firebase once we have the user
-    const dealerCards = [[10, "D"], [7, "H"]]; // TODO: we will need to get this from firebase
-    const activePlayers = [
+    const [cards, setCards] = React.useState([[1, "S"], [11, "H"]]); // TODO: we will need to get this from firebase once we have the user
+    const [dealerCards, setDealerCards] = React.useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
+    const [activePlayers, setActivePlayers] = React.useState([
         { username: "Player1", cards: [[1, "H"], [5, "D"]] },
         { username: "Player2", cards: [[7, "H"], [9, "S"]] },
-        { username: "Player3c", cards: [[4, "D"], [11, "C"]] }
-    ]; // TODO: Fetch this data from firebase
-    const showSecondDealerCard = false; // Boolean to control whether the second card is displayed
+        { username: "Player3", cards: [[4, "D"], [11, "C"]] }
+    ]); // TODO: Fetch this data from firebase
+    const [showSecondDealerCard, setShowSecondDealerCard] = React.useState(false); // Boolean to control whether the second card is displayed
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -22,6 +23,27 @@ const Player = () => {
             console.error("Error logging out:", error);
         });
     }
+
+    const handleHit = () => {
+        console.log("Hit action triggered");
+        setCards((prevCards) => [...prevCards, getRandomCard()]);
+    };
+
+    const handleDoubleDown = () => {
+        console.log("Double Down action triggered");
+        // TODO: Implement logic to double the player's bet
+        setCards((prevCards) => [...prevCards, getRandomCard()]);
+    };
+
+    const handleSplit = () => {
+        console.log("Split action triggered");
+        // TODO: Implement logic to split the player's hand into two separate hands
+    };
+
+    const handleStand = () => {
+        console.log("Stand action triggered");
+        // TODO: Implement logic to end the player's turn
+    };
 
     return (
         <>
@@ -159,7 +181,7 @@ const Player = () => {
                             e.target.style.backgroundColor = '#007bff';
                             e.target.style.transform = 'scale(1)';
                         }}
-                        onClick={() => console.log("Hit")}>Hit</button>
+                        onClick={() => handleHit()}>Hit</button>
                     <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#28a745', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
                         onMouseOver={(e) => {
                             e.target.style.backgroundColor = '#218838';
@@ -169,7 +191,7 @@ const Player = () => {
                             e.target.style.backgroundColor = '#28a745';
                             e.target.style.transform = 'scale(1)';
                         }}
-                        onClick={() => console.log("Double Down")}>Double Down</button>
+                        onClick={() => handleDoubleDown()}>Double Down</button>
                     <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#ffc107', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
                         onMouseOver={(e) => {
                             e.target.style.backgroundColor = '#e0a800';
@@ -179,7 +201,7 @@ const Player = () => {
                             e.target.style.backgroundColor = '#ffc107';
                             e.target.style.transform = 'scale(1)';
                         }}
-                        onClick={() => console.log("Split")}>Split</button>
+                        onClick={() => handleSplit()}>Split</button>
                     <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#dc3545', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
                         onMouseOver={(e) => {
                             e.target.style.backgroundColor = '#c82333';
@@ -189,7 +211,7 @@ const Player = () => {
                             e.target.style.backgroundColor = '#dc3545';
                             e.target.style.transform = 'scale(1)';
                         }}
-                        onClick={() => console.log("Stand")}>Stand</button>
+                        onClick={() => handleStand()}>Stand</button>
                 </div>
                 <div style={{ marginBottom: '20px' }}>
                     <h3 style={{ textAlign: 'center', color: '#333' }}>Active Players</h3>
