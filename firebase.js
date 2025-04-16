@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getAuth } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -15,12 +15,13 @@ const firebaseConfig = {
   storageBucket: "crossrealityblackjack.firebasestorage.app",
   messagingSenderId: "202209416084",
   appId: "1:202209416084:web:209768afeed71e77193581",
-  measurementId: "G-TL60285YEJ"
+  measurementId: "G-TL60285YEJ",
+  databaseURL: "https://crossrealityblackjack-default-rtdb.firebaseio.com/",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const database = getDatabase(app);
 
-export { auth }
+export { auth, database }
