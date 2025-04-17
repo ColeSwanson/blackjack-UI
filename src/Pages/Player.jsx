@@ -4,6 +4,7 @@ import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
+import { set } from 'firebase/database';
 
 const Player = () => {
     const { user } = useAuth(); 
@@ -20,6 +21,9 @@ const Player = () => {
     const [canDoubleDown, setCanDoubleDown] = useState(true); // Boolean to control whether the player can double down
     const [canSplit, setCanSplit] = useState(false); // Boolean to control whether the player can split
     const [canStand, setCanStand] = useState(true); // Boolean to control whether the player can stand
+
+    const [playerAction, setPlayerAction] = useState(null); // State to track the player's action
+    const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
 
     const handleLogout = () => {
         navigate('/');
@@ -40,27 +44,66 @@ const Player = () => {
         } else {
             setCanDoubleDown(false);
         }
-    }, [cards]);
+
+        if (playerAction === "Stand") {
+            setCanHit(false); // Disable hit after the player hits
+            setCanDoubleDown(false); // Disable double down after the player hits
+            setCanSplit(false); // Disable split after the player hits
+            setCanStand(false); // Disable stand after the player hits
+        }        
+    }, [cards, playerAction]);
 
     const handleHit = () => {
         console.log("Hit action triggered");
-        setCards((prevCards) => [...prevCards, getRandomCard()]);
+        setPlayerAction("Hit");
+
+        if (Array.isArray(cards[0][0])) {
+            // If the player has split, apply the hit to the hand indicated by primaryHand
+            setCards((prevCards) => {
+                const updatedHands = [...prevCards];
+                updatedHands[primaryHand] = [...updatedHands[primaryHand], getRandomCard()];
+                return updatedHands;
+            });
+        } else {
+            // Otherwise, apply the hit to the single hand
+            setCards((prevCards) => [...prevCards, getRandomCard()]);
+        }
+
+        setPlayerAction(null); // Reset action after hitting
     };
 
     const handleDoubleDown = () => {
         console.log("Double Down action triggered");
+        setPlayerAction("Double Down");
         // TODO: Implement logic to double the player's bet
         setCards((prevCards) => [...prevCards, getRandomCard()]);
+        setPlayerAction("Stand"); // player must stand after doubling down
     };
 
     const handleSplit = () => {
         console.log("Split action triggered");
-        // TODO: Implement logic to split the player's hand into two separate hands
+        setPlayerAction("Split");
+
+        if (cards.length === 2 && cards[0][0] === cards[1][0]) {
+            const newHands = [
+                [cards[0], getRandomCard()], // First hand with the first card and a new card
+                [cards[1], getRandomCard()]  // Second hand with the second card and a new card
+            ];
+            setCards(newHands); // Update the state to reflect the split hands
+        }
+
+        setCanSplit(false); // Disable split after splitting
     };
 
     const handleStand = () => {
         console.log("Stand action triggered");
-        // TODO: Implement logic to end the player's turn
+
+        if (Array.isArray(cards[0][0]) && primaryHand < cards.length - 1) {
+            // If the player has split and there are more hands to play, move to the next hand
+            setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+        } else {
+            setPlayerAction("Stand")
+        }
     };
 
     return (
@@ -163,31 +206,76 @@ const Player = () => {
                     </div>
                 </div>
                 <h2 style={{ textAlign: 'center', color: '#333' }}>{user.displayName}</h2>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-                    {cards.map((card, index) => {
-                        const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];
-                        return (
-                            <div key={index} style={{
-                                width: '50px',
-                                height: '70px',
-                                border: '1px solid #000',
-                                borderRadius: '5px',
-                                backgroundColor: '#fff',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
+                    {Array.isArray(cards[0][0]) ? (
+                        cards.map((hand, handIndex) => (
+                            <div key={handIndex} style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
                                 alignItems: 'center',
-                                padding: '5px',
-                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                                border: handIndex === primaryHand ? '2px solid #007bff' : 'none', 
+                                borderRadius: '5px', 
+                                padding: '10px' 
                             }}>
-                                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
-                                <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
-                                    {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
-                                </span>
-                                <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
+                                <h4 style={{ marginBottom: '10px', color: handIndex === primaryHand ? '#007bff' : '#555' }}>
+                                    Hand {handIndex + 1}
+                                </h4>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    {hand.map((card, index) => {
+                                        const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];
+                                        return (
+                                            <div key={index} style={{
+                                                width: '50px',
+                                                height: '70px',
+                                                border: '1px solid #000',
+                                                borderRadius: '5px',
+                                                backgroundColor: '#fff',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                padding: '5px',
+                                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                                            }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
+                                                <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
+                                                    {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                                </span>
+                                                <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        );
-                    })}
+                        ))
+                    ) : (
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {cards.map((card, index) => {
+                                const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];
+                                return (
+                                    <div key={index} style={{
+                                        width: '50px',
+                                        height: '70px',
+                                        border: '1px solid #000',
+                                        borderRadius: '5px',
+                                        backgroundColor: '#fff',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '5px',
+                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                                    }}>
+                                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
+                                        <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
+                                            {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                        </span>
+                                        <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '40px' }}>
                     <button 
