@@ -124,8 +124,25 @@ const Player = () => {
         console.log("Double Down action triggered");
         setPlayerAction("Double Down");
         // TODO: Implement logic to double the player's bet
-        setCards((prevCards) => [...prevCards, getRandomCard()]);
-        setPlayerAction("Stand"); // player must stand after doubling down
+
+        if (Array.isArray(cards[0][0])) {
+            // If the player has split, apply the double down to the hand indicated by primaryHand
+            setCards((prevCards) => {
+                const updatedHands = [...prevCards];
+                updatedHands[primaryHand] = [...updatedHands[primaryHand], getRandomCard()];
+                return updatedHands;
+            });
+
+            if (primaryHand < cards.length - 1) {
+                setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+            } else {
+                setPlayerAction("Stand"); // Stand if it's the final hand
+            }
+        } else {
+            // Otherwise, apply the double down to the single hand
+            setCards((prevCards) => [...prevCards, getRandomCard()]);
+            setPlayerAction("Stand"); // Player must stand after doubling down
+        }
     };
 
     const handleSplit = () => {
