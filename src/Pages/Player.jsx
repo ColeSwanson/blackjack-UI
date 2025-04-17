@@ -1,5 +1,5 @@
 import { signOut } from 'firebase/auth';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -7,15 +7,19 @@ import getRandomCard from '../Data/cards';
 
 const Player = () => {
     const { user } = useAuth(); 
-    const [cards, setCards] = React.useState([[1, "S"], [11, "H"]]); // TODO: we will need to get this from firebase once we have the user
-    const [dealerCards, setDealerCards] = React.useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
-    const [activePlayers, setActivePlayers] = React.useState([
+    const navigate = useNavigate();
+    const [cards, setCards] = useState([[1, "S"], [1, "H"]]); // TODO: we will need to get this from firebase once we have the user
+    const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
+    const [activePlayers, setActivePlayers] = useState([
         { username: "Player1", cards: [[1, "H"], [5, "D"]] },
         { username: "Player2", cards: [[7, "H"], [9, "S"]] },
         { username: "Player3", cards: [[4, "D"], [11, "C"]] }
     ]); // TODO: Fetch this data from firebase
-    const [showSecondDealerCard, setShowSecondDealerCard] = React.useState(false); // Boolean to control whether the second card is displayed
-    const navigate = useNavigate();
+    const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
+    const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
+    const [canDoubleDown, setCanDoubleDown] = useState(true); // Boolean to control whether the player can double down
+    const [canSplit, setCanSplit] = useState(false); // Boolean to control whether the player can split
+    const [canStand, setCanStand] = useState(true); // Boolean to control whether the player can stand
 
     const handleLogout = () => {
         navigate('/');
@@ -23,6 +27,20 @@ const Player = () => {
             console.error("Error logging out:", error);
         });
     }
+
+    useEffect(() => {
+        if (cards.length === 2 && cards[0][0] === cards[1][0]) {
+            setCanSplit(true);
+        } else {
+            setCanSplit(false);
+        }
+
+        if (cards.length === 2) {
+            setCanDoubleDown(true);
+        } else {
+            setCanDoubleDown(false);
+        }
+    }, [cards]);
 
     const handleHit = () => {
         console.log("Hit action triggered");
@@ -172,45 +190,107 @@ const Player = () => {
                     })}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '40px' }}>
-                    <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#007bff', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
+                    <button 
+                        style={{ 
+                            padding: '10px 15px', 
+                            border: 'none', 
+                            borderRadius: '5px', 
+                            backgroundColor: canHit ? '#007bff' : '#d6d6d6', 
+                            color: canHit ? '#fff' : '#a1a1a1', 
+                            cursor: canHit ? 'pointer' : 'not-allowed', 
+                            transition: canHit ? 'background-color 0.3s, transform 0.2s' : 'none'
+                        }}
                         onMouseOver={(e) => {
-                            e.target.style.backgroundColor = '#0056b3';
-                            e.target.style.transform = 'scale(1.05)';
+                            if(canHit)
+                            {
+                                e.target.style.backgroundColor = '#0056b3';
+                                e.target.style.transform = 'scale(1.05)';
+                            }
                         }}
                         onMouseOut={(e) => {
-                            e.target.style.backgroundColor = '#007bff';
-                            e.target.style.transform = 'scale(1)';
+                            if(canHit)
+                            {
+                                e.target.style.backgroundColor = '#007bff';
+                                e.target.style.transform = 'scale(1)';
+                            }
                         }}
+                        disabled={!canHit}
                         onClick={() => handleHit()}>Hit</button>
-                    <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#28a745', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
+                    <button 
+                        style={{ 
+                            padding: '10px 15px', 
+                            border: 'none', 
+                            borderRadius: '5px', 
+                            backgroundColor: canDoubleDown ? '#28a745' : '#d6d6d6', 
+                            color: canDoubleDown ? '#fff' : '#a1a1a1', 
+                            cursor: canDoubleDown ? 'pointer' : 'not-allowed', 
+                            transition: canDoubleDown ? 'background-color 0.3s, transform 0.2s' : 'none'
+                        }}
                         onMouseOver={(e) => {
-                            e.target.style.backgroundColor = '#218838';
-                            e.target.style.transform = 'scale(1.05)';
+                            if (canDoubleDown)
+                            {
+                                e.target.style.backgroundColor = '#218838';
+                                e.target.style.transform = 'scale(1.05)';
+                            }
                         }}
                         onMouseOut={(e) => {
-                            e.target.style.backgroundColor = '#28a745';
-                            e.target.style.transform = 'scale(1)';
+                            if (canDoubleDown)
+                            {
+                                e.target.style.backgroundColor = '#28a745';
+                                e.target.style.transform = 'scale(1)';
+                            }
                         }}
+                        disabled={!canDoubleDown}
                         onClick={() => handleDoubleDown()}>Double Down</button>
-                    <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#ffc107', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
+                    <button 
+                        style={{
+                            padding: '10px 15px',
+                            border: 'none',
+                            borderRadius: '5px',
+                            backgroundColor: canSplit ? '#ffc107' : '#d6d6d6',
+                            color: canSplit ? '#fff' : '#a1a1a1',
+                            cursor: canSplit ? 'pointer' : 'not-allowed',
+                            transition: canSplit ? 'background-color 0.3s, transform 0.2s' : 'none'
+                        }}
                         onMouseOver={(e) => {
-                            e.target.style.backgroundColor = '#e0a800';
-                            e.target.style.transform = 'scale(1.05)';
+                            if (canSplit) {
+                                e.target.style.backgroundColor = '#e0a800';
+                                e.target.style.transform = 'scale(1.05)';
+                            }
                         }}
                         onMouseOut={(e) => {
-                            e.target.style.backgroundColor = '#ffc107';
-                            e.target.style.transform = 'scale(1)';
+                            if (canSplit) {
+                                e.target.style.backgroundColor = '#ffc107';
+                                e.target.style.transform = 'scale(1)';
+                            }
                         }}
+                        disabled={!canSplit}
                         onClick={() => handleSplit()}>Split</button>
-                    <button style={{ padding: '10px 15px', border: 'none', borderRadius: '5px', backgroundColor: '#dc3545', color: '#fff', cursor: 'pointer', transition: 'background-color 0.3s, transform 0.2s' }}
+                    <button 
+                        style={{ 
+                            padding: '10px 15px', 
+                            border: 'none', 
+                            borderRadius: '5px',
+                            backgroundColor: canStand ? '#dc3545' : '#d6d6d6', 
+                            color: canStand ? '#fff' : '#a1a1a1',
+                            cursor: canStand ? 'pointer' : 'not-allowed',
+                            transition: canStand ? 'background-color 0.3s, transform 0.2s' : 'none'
+                        }}
                         onMouseOver={(e) => {
-                            e.target.style.backgroundColor = '#c82333';
-                            e.target.style.transform = 'scale(1.05)';
+                            if(canStand)
+                            {
+                                e.target.style.backgroundColor = '#c82333';
+                                e.target.style.transform = 'scale(1.05)';
+                            }
                         }}
                         onMouseOut={(e) => {
-                            e.target.style.backgroundColor = '#dc3545';
-                            e.target.style.transform = 'scale(1)';
+                            if(canStand)
+                            {
+                                e.target.style.backgroundColor = '#dc3545';
+                                e.target.style.transform = 'scale(1)';
+                            }
                         }}
+                        disabled={!canStand}
                         onClick={() => handleStand()}>Stand</button>
                 </div>
                 <div style={{ marginBottom: '20px' }}>
