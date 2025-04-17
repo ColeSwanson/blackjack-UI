@@ -10,6 +10,7 @@ const Player = () => {
     const { user } = useAuth(); 
     const navigate = useNavigate();
     const [cards, setCards] = useState([[1, "S"], [1, "H"]]); // TODO: we will need to get this from firebase once we have the user
+    const [value, setValue] = useState([0]);
     const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
     const [activePlayers, setActivePlayers] = useState([
         { username: "Player1", cards: [[1, "H"], [5, "D"]] },
@@ -32,6 +33,31 @@ const Player = () => {
         });
     }
 
+    // Calculate the value of the player's hands
+    const calculateHandValue = (hand) => {
+        let total = 0;
+        let aces = 0;
+
+        hand.forEach(([value]) => {
+            if (value === 1) {
+                aces += 1;
+                total += 11; // Treat Ace as 11 initially
+            } else if (value >= 11 && value <= 13) {
+                total += 10; // Face cards are worth 10
+            } else {
+                total += value;
+            }
+        });
+
+        // Adjust for Aces if total exceeds 21
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces -= 1;
+        }
+
+        return total;
+    };
+
     useEffect(() => {
         if (cards.length === 2 && cards[0][0] === cards[1][0]) {
             setCanSplit(true);
@@ -45,13 +71,35 @@ const Player = () => {
             setCanDoubleDown(false);
         }
 
+        if (Array.isArray(cards[0][0])) {
+            // If the player has split, calculate the value for each hand
+            const handValues = cards.map((hand) => calculateHandValue(hand));
+            setValue(handValues);
+
+            if (handValues[primaryHand] >= 21) {
+                if (primaryHand < cards.length - 1) {
+                    setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+                } else {
+                    setPlayerAction("Stand");
+                }
+            }
+        } else {
+            // Otherwise, calculate the value for the single hand
+            const handValue = calculateHandValue(cards);
+            setValue([handValue]);
+
+            if (handValue >= 21) {
+                setPlayerAction("Stand");
+            }
+        }
+
         if (playerAction === "Stand") {
             setCanHit(false); // Disable hit after the player hits
             setCanDoubleDown(false); // Disable double down after the player hits
             setCanSplit(false); // Disable split after the player hits
             setCanStand(false); // Disable stand after the player hits
-        }        
-    }, [cards, playerAction]);
+        }
+    }, [cards, playerAction, primaryHand]);
 
     const handleHit = () => {
         console.log("Hit action triggered");
