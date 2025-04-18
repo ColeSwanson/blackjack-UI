@@ -66,4 +66,22 @@ async function getActivePlayersWithCards() {
   }
 }
 
-export { auth, getPlayerCards, getActivePlayersWithCards }
+async function getDealerCards() {
+  const dealerRef = ref(database, 'Dealer/Cards');
+  try {
+    const snapshot = await get(dealerRef);
+    if (snapshot.exists()) {
+      const cards = snapshot.val();
+      const formattedCards = Object.values(cards).map(card => [card.Value, card.Suit]);
+      return { Cards: formattedCards };
+    } else {
+      console.log("No data available");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting dealer cards: ", error);
+    return null;
+  }
+}
+
+export { auth, getPlayerCards, getActivePlayersWithCards, getDealerCards }

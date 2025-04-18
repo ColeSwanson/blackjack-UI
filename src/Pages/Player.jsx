@@ -1,6 +1,6 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth, getActivePlayersWithCards, getPlayerCards } from '../../firebase';
+import { auth, getActivePlayersWithCards, getDealerCards, getPlayerCards } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
@@ -10,7 +10,7 @@ const Player = () => {
     const navigate = useNavigate();
     const [cards, setCards] = useState([]); // TODO: we will need to get this from firebase once we have the user
     const [value, setValue] = useState([0]);
-    const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
+    const [dealerCards, setDealerCards] = useState([]); // TODO: we will need to get this from firebase
     const [activePlayers, setActivePlayers] = useState([]); // TODO: Fetch this data from firebase
     const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
@@ -64,6 +64,13 @@ const Player = () => {
             setActivePlayers(data);
         }).catch((error) => {
             console.error("Error fetching active players:", error);
+        });
+
+        getDealerCards().then((data) => {
+            setDealerCards(data.Cards);
+        }
+        ).catch((error) => {
+            console.error("Error fetching dealer cards:", error);
         });
     }, []);
 
