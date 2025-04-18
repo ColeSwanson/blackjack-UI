@@ -67,7 +67,6 @@ const Player = () => {
 
         getActivePlayersWithCards().then((data) => {
             setActivePlayers(data);
-            console.log("Active players:", data);
         }).catch((error) => {
             console.error("Error fetching active players:", error);
         });
