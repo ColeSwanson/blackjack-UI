@@ -4,7 +4,6 @@ import { auth, getActivePlayersWithCards, getPlayerCards } from '../../firebase'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
-import { get } from 'firebase/database';
 
 const Player = () => {
     const { user } = useAuth(); 
@@ -13,9 +12,9 @@ const Player = () => {
     const [value, setValue] = useState([0]);
     const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
     const [activePlayers, setActivePlayers] = useState([
-        { UId: "Player1", cards: [[1, "H"], [5, "D"]] },
-        { UId: "Player2", cards: [[7, "H"], [9, "S"]] },
-        { UId: "Player3", cards: [[4, "D"], [11, "C"]] }
+        { displayName: "Player1", cards: [[1, "H"], [5, "D"]] },
+        { displayName: "Player2", cards: [[7, "H"], [9, "S"]] },
+        { displayName: "Player3", cards: [[4, "D"], [11, "C"]] }
     ]); // TODO: Fetch this data from firebase
     const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
@@ -473,7 +472,7 @@ const Player = () => {
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
                         {activePlayers.map((player, index) => (
                             <div key={index} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '5px', color: '#555' }}>{player.UId}</h4>
+                                <h4 style={{ marginBottom: '5px', color: '#555' }}>{player.displayName}</h4>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                     {player.cards.map((card, cardIndex) => {
                                         const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];

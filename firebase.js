@@ -53,7 +53,7 @@ async function getActivePlayersWithCards() {
         const cards = players[key].Cards 
           ? Object.values(players[key].Cards).map(card => [card.Value, card.Suit]) 
           : [];
-        return { UId: key, cards: cards };
+        return { displayName: players[key].DisplayName, cards: cards };
       });
       return allPlayers;
     } else {
