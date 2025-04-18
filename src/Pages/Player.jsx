@@ -1,20 +1,21 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth, getPlayerCards } from '../../firebase';
+import { auth, getActivePlayersWithCards, getPlayerCards } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
+import { get } from 'firebase/database';
 
 const Player = () => {
     const { user } = useAuth(); 
     const navigate = useNavigate();
-    const [cards, setCards] = useState([[1, "S"], [1, "H"]]); // TODO: we will need to get this from firebase once we have the user
+    const [cards, setCards] = useState([]); // TODO: we will need to get this from firebase once we have the user
     const [value, setValue] = useState([0]);
     const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
     const [activePlayers, setActivePlayers] = useState([
-        { username: "Player1", cards: [[1, "H"], [5, "D"]] },
-        { username: "Player2", cards: [[7, "H"], [9, "S"]] },
-        { username: "Player3", cards: [[4, "D"], [11, "C"]] }
+        { UId: "Player1", cards: [[1, "H"], [5, "D"]] },
+        { UId: "Player2", cards: [[7, "H"], [9, "S"]] },
+        { UId: "Player3", cards: [[4, "D"], [11, "C"]] }
     ]); // TODO: Fetch this data from firebase
     const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
@@ -60,55 +61,63 @@ const Player = () => {
     useEffect(() => {
         getPlayerCards(user.uid).then((data) => {
             setCards(data.Cards);
-            console.log("Player cards fetched:", data.Cards);
         }).catch((error) => {
             console.error("Error fetching player cards:", error);
+        });
+
+        getActivePlayersWithCards().then((data) => {
+            setActivePlayers(data);
+            console.log("Active players:", data);
+        }).catch((error) => {
+            console.error("Error fetching active players:", error);
         });
     }, []);
 
     useEffect(() => {
-        if (cards.length === 2 && cards[0][0] === cards[1][0]) {
-            setCanSplit(true);
-        } else {
-            setCanSplit(false);
-        }
+        if (cards.length > 0) {
+            if (cards.length === 2 && cards[0][0] === cards[1][0]) {
+                setCanSplit(true);
+            } else {
+                setCanSplit(false);
+            }
 
-        if (cards.length === 2) {
-            setCanDoubleDown(true);
-        } else {
-            setCanDoubleDown(false);
-        }
+            if (cards.length === 2) {
+                setCanDoubleDown(true);
+            } else {
+                setCanDoubleDown(false);
+            }
 
-        if (Array.isArray(cards[0][0])) {
-            // If the player has split, calculate the value for each hand
-            const handValues = cards.map((hand) => calculateHandValue(hand));
-            setValue(handValues);
+            if (Array.isArray(cards[0][0])) {
+                // If the player has split, calculate the value for each hand
+                const handValues = cards.map((hand) => calculateHandValue(hand));
+                setValue(handValues);
 
-            if (handValues[primaryHand] >= 21) {
-                if (primaryHand < cards.length - 1) {
-                    setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
-                } else {
+                if (handValues[primaryHand] >= 21) {
+                    if (primaryHand < cards.length - 1) {
+                        setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+                    } else {
+                        setPlayerAction("Stand");
+                    }
+                }
+            } else {
+                // Otherwise, calculate the value for the single hand
+                const handValue = calculateHandValue(cards);
+                setValue([handValue]);
+
+                if (handValue >= 21) {
                     setPlayerAction("Stand");
                 }
             }
-        } else {
-            // Otherwise, calculate the value for the single hand
-            const handValue = calculateHandValue(cards);
-            setValue([handValue]);
 
-            if (handValue >= 21) {
-                setPlayerAction("Stand");
+            if (playerAction === "Stand") {
+                setCanHit(false); // Disable hit after the player hits
+                setCanDoubleDown(false); // Disable double down after the player hits
+                setCanSplit(false); // Disable split after the player hits
+                setCanStand(false); // Disable stand after the player hits
             }
-        }
 
-        if (playerAction === "Stand") {
-            setCanHit(false); // Disable hit after the player hits
-            setCanDoubleDown(false); // Disable double down after the player hits
-            setCanSplit(false); // Disable split after the player hits
-            setCanStand(false); // Disable stand after the player hits
+            console.log(getPlayerCards(user.uid));
         }
-
-        console.log(getPlayerCards(user.uid))
     }, [cards, playerAction, primaryHand]);
 
     const handleHit = () => {
@@ -282,7 +291,11 @@ const Player = () => {
                 </div>
                 <h2 style={{ textAlign: 'center', color: '#333' }}>{user.displayName}</h2>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
-                    {Array.isArray(cards[0][0]) ? (
+                    {cards.length === 0 ? (
+                        <p style={{ color: '#555', textAlign: 'center' }}>No cards to display</p>
+                    ) : Array.isArray(cards[0]) && cards[0].length === 0 ? (
+                        <p style={{ color: '#555', textAlign: 'center' }}>No cards to display</p>
+                    ) : Array.isArray(cards[0][0]) ? (
                         cards.map((hand, handIndex) => (
                             <div key={handIndex} style={{ 
                                 display: 'flex', 
@@ -461,7 +474,7 @@ const Player = () => {
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
                         {activePlayers.map((player, index) => (
                             <div key={index} style={{ textAlign: 'center' }}>
-                                <h4 style={{ marginBottom: '5px', color: '#555' }}>{player.username}</h4>
+                                <h4 style={{ marginBottom: '5px', color: '#555' }}>{player.UId}</h4>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                                     {player.cards.map((card, cardIndex) => {
                                         const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];

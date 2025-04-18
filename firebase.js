@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
 import { child, get, getDatabase, ref } from 'firebase/database';
 
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -42,4 +43,27 @@ async function getPlayerCards(UId) {
   }
 }
 
-export { auth, getPlayerCards }
+async function getActivePlayersWithCards() {
+  const playersRef = ref(database, 'Players');
+  try {
+    const snapshot = await get(playersRef);
+    if (snapshot.exists()) {
+      const players = snapshot.val();
+      const allPlayers = Object.keys(players).map(key => {
+        const cards = players[key].Cards 
+          ? Object.values(players[key].Cards).map(card => [card.Value, card.Suit]) 
+          : [];
+        return { UId: key, cards: cards };
+      });
+      return allPlayers;
+    } else {
+      console.log("No data available");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error getting players: ", error);
+    return [];
+  }
+}
+
+export { auth, getPlayerCards, getActivePlayersWithCards }
