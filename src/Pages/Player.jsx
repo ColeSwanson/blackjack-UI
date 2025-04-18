@@ -11,11 +11,7 @@ const Player = () => {
     const [cards, setCards] = useState([]); // TODO: we will need to get this from firebase once we have the user
     const [value, setValue] = useState([0]);
     const [dealerCards, setDealerCards] = useState([[10, "D"], [7, "H"]]); // TODO: we will need to get this from firebase
-    const [activePlayers, setActivePlayers] = useState([
-        { displayName: "Player1", cards: [[1, "H"], [5, "D"]] },
-        { displayName: "Player2", cards: [[7, "H"], [9, "S"]] },
-        { displayName: "Player3", cards: [[4, "D"], [11, "C"]] }
-    ]); // TODO: Fetch this data from firebase
+    const [activePlayers, setActivePlayers] = useState([]); // TODO: Fetch this data from firebase
     const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
     const [canDoubleDown, setCanDoubleDown] = useState(true); // Boolean to control whether the player can double down
