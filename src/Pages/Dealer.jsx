@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
+import { getPlayersDisplayNames } from '../../firebase';
 
 const Dealer = () => {
     const [players, setPlayers] = useState([]);
     const [newPlayer, setNewPlayer] = useState('');
     const [instructions, setInstructions] = useState('');
 
-    const addPlayer = () => {
+    const addPlayer = () => { //Change this to add player to firebase
         if (newPlayer.trim()) {
             setPlayers([...players, newPlayer.trim()]);
             setNewPlayer('');
         }
     };
 
-    const dealCard = (player) => {
-        setInstructions(`Deal card to ${player}`);
+    const removePlayer = (player) => { //Change this to remove player from firebase
+        console.log(`Removing player: ${player}`);
     };
+
+    useEffect(() => {
+        getPlayersDisplayNames()
+            .then((data) => {
+                setPlayers(data);
+            })
+            .catch((error) => {
+                console.error("Error fetching players: ", error);
+            });
+    },[]);
 
     return (
         <>
@@ -89,30 +100,18 @@ const Dealer = () => {
                                         borderBottom: '1px solid #ddd',
                                     }}
                                 >
-                                    <span style={{ fontSize: '16px', color: '#000' }}>{player}</span>
+                                    <span style={{ fontSize: '16px', color: '#000' }}>{player.displayName}</span>
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button
-                                            onClick={() => dealCard(player)}
+                                            onClick={() => removePlayer(player.displayName)}
+                                            disabled={player.isVirtual}
                                             style={{
                                                 padding: '5px 10px',
-                                                backgroundColor: '#2196F3',
+                                                backgroundColor: player.isVirtual ? '#ccc' : '#f44336',
                                                 color: '#fff',
                                                 border: 'none',
                                                 borderRadius: '4px',
-                                                cursor: 'pointer',
-                                            }}
-                                        >
-                                            Deal Card
-                                        </button>
-                                        <button
-                                            onClick={() => setPlayers(players.filter((p) => p !== player))}
-                                            style={{
-                                                padding: '5px 10px',
-                                                backgroundColor: '#f44336',
-                                                color: '#fff',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
+                                                cursor: player.isVirtual ? 'not-allowed' : 'pointer',
                                             }}
                                         >
                                             Remove

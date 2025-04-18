@@ -25,7 +25,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-async function getPlayerCards(UId) {
+export async function getPlayerCards(UId) {
   const playersRef = ref(database, `Players/${UId}/Cards`);
   try {
     const snapshot = await get(playersRef);
@@ -43,7 +43,28 @@ async function getPlayerCards(UId) {
   }
 }
 
-async function getActivePlayersWithCards() {
+export async function getPlayersDisplayNames() {
+  const playersRef = ref(database, 'Players');
+  try {
+    const snapshot = await get(playersRef);
+    if (snapshot.exists()) {
+      const players = snapshot.val();
+      const displayNames = Object.keys(players).map(key => ({
+        displayName: players[key].DisplayName,
+        isVirtual: players[key].isVirtual || false
+      }));
+      return displayNames;
+    } else {
+      console.log("No data available");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error getting players: ", error);
+    return [];
+  }
+}
+
+export async function getActivePlayersWithCards() {
   const playersRef = ref(database, 'Players');
   try {
     const snapshot = await get(playersRef);
@@ -66,7 +87,7 @@ async function getActivePlayersWithCards() {
   }
 }
 
-async function getDealerCards() {
+export async function getDealerCards() {
   const dealerRef = ref(database, 'Dealer/Cards');
   try {
     const snapshot = await get(dealerRef);
@@ -84,4 +105,4 @@ async function getDealerCards() {
   }
 }
 
-export { auth, getPlayerCards, getActivePlayersWithCards, getDealerCards }
+export { auth }
