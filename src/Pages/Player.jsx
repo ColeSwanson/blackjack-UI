@@ -1,10 +1,9 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth } from '../../firebase';
+import { auth, getPlayerCards } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
-import { set } from 'firebase/database';
 
 const Player = () => {
     const { user } = useAuth(); 
@@ -59,6 +58,15 @@ const Player = () => {
     };
 
     useEffect(() => {
+        getPlayerCards(user.uid).then((data) => {
+            setCards(data.Cards);
+            console.log("Player cards fetched:", data.Cards);
+        }).catch((error) => {
+            console.error("Error fetching player cards:", error);
+        });
+    }, []);
+
+    useEffect(() => {
         if (cards.length === 2 && cards[0][0] === cards[1][0]) {
             setCanSplit(true);
         } else {
@@ -99,6 +107,8 @@ const Player = () => {
             setCanSplit(false); // Disable split after the player hits
             setCanStand(false); // Disable stand after the player hits
         }
+
+        console.log(getPlayerCards(user.uid))
     }, [cards, playerAction, primaryHand]);
 
     const handleHit = () => {

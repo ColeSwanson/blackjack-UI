@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
+import { child, get, getDatabase, ref } from 'firebase/database';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -24,4 +24,22 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-export { auth, database }
+async function getPlayerCards(UId) {
+  const playersRef = ref(database, `Players/${UId}/Cards`);
+  try {
+    const snapshot = await get(playersRef);
+    if (snapshot.exists()) {
+      const cards = snapshot.val();
+      const formattedCards = Object.values(cards).map(card => [card.Value, card.Suit]);
+      return { UId, Cards: formattedCards };
+    } else {
+      console.log("No data available");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting player cards: ", error);
+    return null;
+  }
+}
+
+export { auth, getPlayerCards }
