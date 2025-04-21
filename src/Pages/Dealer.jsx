@@ -1,10 +1,10 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getPlayersDisplayNames, removePlayer } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setPlaying } from '../../firebase';
 
 const Dealer = () => {
     const [players, setPlayers] = useState([]);
     const [newPlayer, setNewPlayer] = useState('');
-    const [instructions, setInstructions] = useState('');
+    const [gameStatus, setGameStatus] = useState('');
 
     const addPlayer = () => {       
         addNewPlayer(newPlayer+"1", newPlayer, false).then(() => {
@@ -24,14 +24,40 @@ const Dealer = () => {
         });
     };
 
+    const handleStartGame = () => {
+        setPlaying(true).then(() => {
+            console.log("Game started successfully");
+        })
+        .catch((error) => {
+            console.error("Error starting game: ", error);
+        });
+    }
+
+    const handleEndGame = () => {
+        setPlaying(false).then(() => {
+            console.log("Game ended successfully");
+        })
+        .catch((error) => {
+            console.error("Error ending game: ", error);
+        });
+    }
+
+
     useEffect(() => {
-        getPlayersDisplayNames()
-            .then((data) => {
-                setPlayers(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching players: ", error);
-            });
+        getPlayersDisplayNames().then((data) => {
+            setPlayers(data);
+        })
+        .catch((error) => {
+            console.error("Error fetching players: ", error);
+        });
+
+        getGamestatus().then((data) => {
+            console.log("Game status: ", data);
+            setGameStatus(data);
+        })
+        .catch((error) => {
+            console.error("Error fetching game status: ", error);
+        });
     },[]);
 
     return (
@@ -55,8 +81,8 @@ const Dealer = () => {
                 <h1 style={{ textAlign: 'center', color: '#333' }}>Dealer</h1>
                 <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
                     <h2 style={{ marginBottom: '10px', color: '#333' }}>Instructions</h2>
-                    <p style={{ fontSize: '16px', color: instructions ? '#000' : '#888' }}>
-                        {instructions || 'No instructions yet.'}
+                    <p style={{ fontSize: '16px', color: gameStatus.Instruction ? '#000' : '#888' }}>
+                        {gameStatus.Instruction || 'No instructions yet.'}
                     </p>
                 </div>
                 <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
@@ -127,6 +153,40 @@ const Dealer = () => {
                                 </li>
                             ))}
                         </ul>
+                    )}
+                </div>
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                    {gameStatus.isPlaying ? (
+                        <button
+                            onClick={() => {
+                                handleEndGame();                            }}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: '#f44336',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            End Game
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => {
+                                handleStartGame();
+                            }}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: '#4CAF50',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Start Game
+                        </button>
                     )}
                 </div>
             </div>

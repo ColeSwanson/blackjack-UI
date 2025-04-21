@@ -130,4 +130,31 @@ export async function removePlayer(UId) {
   }
 }
 
+export async function getGamestatus() {
+  const gameStateRef = ref(database, 'Gamestatus');
+  try {
+    const snapshot = await get(gameStateRef);
+    if (snapshot.exists()) {
+      const gameState = snapshot.val();
+      return gameState;
+    } else {
+      console.log("No data available");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting game state: ", error);
+    return null;
+  }
+}
+
+export async function setPlaying(isPlaying) {
+  const gameStateRef = ref(database, 'Gamestatus/isPlaying');
+  try {
+    await set(gameStateRef, isPlaying);
+    console.log("Game state updated successfully");
+  } catch (error) {
+    console.error("Error updating game state: ", error);
+  }
+}
+
 export { auth }
