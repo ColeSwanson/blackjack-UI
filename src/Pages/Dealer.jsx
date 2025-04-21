@@ -33,7 +33,7 @@ const Dealer = () => {
             console.error("Error starting game: ", error);
         });
 
-        updateInstruction("Deal 2 cards to all players and dealer").then(() => {
+        updateInstruction("Deal card to " + gameStatus.PlayerTurn).then(() => {
             console.log("Instruction updated successfully");
         })
         .catch((error) => {
