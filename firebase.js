@@ -112,7 +112,7 @@ export async function addNewPlayer(UId, displayName, isVirtual) {
     await set(playersRef, {
       DisplayName: displayName,
       isVirtual: isVirtual,
-      Cards: {}
+      Cards: ""
     });
     console.log("Player added successfully");
   } catch (error) {

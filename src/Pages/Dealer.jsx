@@ -3,6 +3,7 @@ import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setP
 import { set } from 'firebase/database';
 
 const Dealer = () => {
+    const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
     const [newPlayer, setNewPlayer] = useState('');
     const [gameStatus, setGameStatus] = useState('');
@@ -23,6 +24,11 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error removing player: ", error);
         });
+    };
+
+    const handleHome = () => {
+        navigate('/');
+        handleEndGame();
     };
 
     const handleStartGame = () => {
@@ -87,7 +93,7 @@ const Dealer = () => {
                         color: '#fff', 
                         cursor: 'pointer' 
                     }} 
-                    onClick={() => window.location.href = '/'}
+                    onClick={handleHome}
                 >
                     Home
                 </button>
