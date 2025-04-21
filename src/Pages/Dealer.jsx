@@ -1,12 +1,19 @@
 import React, { use, useEffect, useState } from 'react';
 import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setPlaying, updateInstruction } from '../../firebase';
 import { set } from 'firebase/database';
+import { useNavigate } from 'react-router-dom';
 
 const Dealer = () => {
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
     const [newPlayer, setNewPlayer] = useState('');
     const [gameStatus, setGameStatus] = useState('');
+    const [update, setUpdate] = useState(false);
+
+    const handleHome = () => {
+        navigate('/');
+        handleEndGame();
+    };
 
     const addPlayer = () => {       
         addNewPlayer(newPlayer+"1", newPlayer, false).then(() => {
@@ -15,6 +22,7 @@ const Dealer = () => {
         }).catch((error) => {
             console.error("Error adding player: ", error);
         });       
+        setUpdate(true);
     };
 
     const handleRemovePlayer = (UId) => { 
@@ -24,11 +32,7 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error removing player: ", error);
         });
-    };
-
-    const handleHome = () => {
-        navigate('/');
-        handleEndGame();
+        setUpdate(true);
     };
 
     const handleStartGame = () => {
@@ -45,6 +49,8 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error updating instruction: ", error);
         });
+        
+        setUpdate(true);
     }
 
     const handleEndGame = () => {
@@ -61,10 +67,12 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error updating instruction: ", error);
         });
+        
+        setUpdate(true);
     }
 
 
-    useEffect(() => {
+    const fetchData = () => {
         getPlayersDisplayNames().then((data) => {
             setPlayers(data);
         })
@@ -79,7 +87,16 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error fetching game status: ", error);
         });
-    },[]);
+    }
+
+    useEffect(() => {
+        setUpdate(false);
+        fetchData();
+
+        const intervalId = setInterval(fetchData, 1000); // Fetch every 1 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }, [update]);
 
     return (
         <>
