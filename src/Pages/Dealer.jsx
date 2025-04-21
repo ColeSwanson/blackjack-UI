@@ -1,24 +1,27 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getPlayersDisplayNames } from '../../firebase';
+import { addNewPlayer, getPlayersDisplayNames, removePlayer } from '../../firebase';
 
 const Dealer = () => {
     const [players, setPlayers] = useState([]);
     const [newPlayer, setNewPlayer] = useState('');
     const [instructions, setInstructions] = useState('');
 
-    const addPlayer = () => { //Change this to add player to firebase
-        console.log(`Adding player: ${newPlayer}`);
-        
+    const addPlayer = () => {       
         addNewPlayer(newPlayer+"1", newPlayer, false).then(() => {
-            setPlayers((prevPlayers) => [...prevPlayers, { displayName: newPlayer, isVirtual: false }]);
+            setPlayers((prevPlayers) => [...prevPlayers, { UId:newPlayer+"1" ,displayName: newPlayer, isVirtual: false }]);
             setNewPlayer('');
         }).catch((error) => {
             console.error("Error adding player: ", error);
         });       
     };
 
-    const removePlayer = (player) => { //Change this to remove player from firebase
-        console.log(`Removing player: ${player}`);
+    const handleRemovePlayer = (UId) => { 
+        removePlayer(UId).then(() => {
+            setPlayers((prevPlayers) => prevPlayers.filter(player => player.UId !== UId))
+        })
+        .catch((error) => {
+            console.error("Error removing player: ", error);
+        });
     };
 
     useEffect(() => {
@@ -107,7 +110,7 @@ const Dealer = () => {
                                     <span style={{ fontSize: '16px', color: '#000' }}>{player.displayName}</span>
                                     <div style={{ display: 'flex', gap: '10px' }}>
                                         <button
-                                            onClick={() => removePlayer(player.displayName)}
+                                            onClick={() => handleRemovePlayer(player.UId)}
                                             disabled={player.isVirtual}
                                             style={{
                                                 padding: '5px 10px',

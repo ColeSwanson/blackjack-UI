@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
-import { child, get, getDatabase, ref, set } from 'firebase/database';
+import { child, get, getDatabase, ref, remove, set } from 'firebase/database';
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -50,6 +50,7 @@ export async function getPlayersDisplayNames() {
     if (snapshot.exists()) {
       const players = snapshot.val();
       const displayNames = Object.keys(players).map(key => ({
+        UId: key,
         displayName: players[key].DisplayName,
         isVirtual: players[key].isVirtual || false
       }));
@@ -116,6 +117,16 @@ export async function addNewPlayer(UId, displayName, isVirtual) {
     console.log("Player added successfully");
   } catch (error) {
     console.error("Error adding player: ", error);
+  }
+}
+
+export async function removePlayer(UId) {
+  const playerRef = ref(database, `Players/${UId}`);
+  try {
+    await remove(playerRef);
+    console.log("Player removed successfully");
+  } catch (error) {
+    console.error("Error removing player: ", error);
   }
 }
 
