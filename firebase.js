@@ -157,4 +157,14 @@ export async function setPlaying(isPlaying) {
   }
 }
 
+export async function updateInstruction(cards) {
+  const instructionRef = ref(database, 'Gamestatus/Instruction');
+  try {
+    await set(instructionRef, cards);
+    console.log("Instruction updated successfully");
+  } catch (error) {
+    console.error("Error updating instruction: ", error);
+  }
+}
+
 export { auth }

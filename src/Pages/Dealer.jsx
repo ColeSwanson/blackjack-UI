@@ -1,5 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setPlaying } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setPlaying, updateInstruction } from '../../firebase';
+import { set } from 'firebase/database';
 
 const Dealer = () => {
     const [players, setPlayers] = useState([]);
@@ -31,6 +32,13 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error starting game: ", error);
         });
+
+        updateInstruction("Deal 2 cards to all players and dealer").then(() => {
+            console.log("Instruction updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error updating instruction: ", error);
+        });
     }
 
     const handleEndGame = () => {
@@ -39,6 +47,13 @@ const Dealer = () => {
         })
         .catch((error) => {
             console.error("Error ending game: ", error);
+        });
+
+        updateInstruction("Start Game").then(() => {
+            console.log("Instruction updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error updating instruction: ", error);
         });
     }
 
