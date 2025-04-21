@@ -157,13 +157,14 @@ const Dealer = () => {
                         />
                         <button
                             onClick={addPlayer}
+                            disabled={!newPlayer}
                             style={{
                                 padding: '10px 15px',
-                                backgroundColor: '#4CAF50',
+                                backgroundColor: newPlayer ? '#4CAF50' : '#ccc',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '4px',
-                                cursor: 'pointer',
+                                cursor: newPlayer ? 'pointer' : 'not-allowed',
                             }}
                         >
                             Add Player
