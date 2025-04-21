@@ -1,7 +1,8 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removePlayer, setPlaying, updateInstruction } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction } from '../../firebase';
 import { set } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
+import { dealCards } from '../Data/cards';
 
 const Dealer = () => {
     const navigate = useNavigate();
@@ -49,6 +50,14 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error updating instruction: ", error);
         });
+
+        //TEMPORARY
+        dealCards(players).then(() => {
+            console.log("Cards dealt successfully");
+        })
+        .catch((error) => {
+            console.error("Error dealing cards: ", error);
+        });
         
         setUpdate(true);
     }
@@ -67,7 +76,14 @@ const Dealer = () => {
         .catch((error) => {
             console.error("Error updating instruction: ", error);
         });
-        
+
+        removeCards().then(() => {
+            console.log("Dealer cards removed successfully");
+        })
+        .catch((error) => {
+            console.error("Error removing dealer cards: ", error);
+        });
+
         setUpdate(true);
     }
 
@@ -93,7 +109,7 @@ const Dealer = () => {
         setUpdate(false);
         fetchData();
 
-        const intervalId = setInterval(fetchData, 1000); // Fetch every 1 seconds
+        const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [update]);

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getPlayerCards, removePlayer } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import getRandomCard from '../Data/cards';
+import { getRandomCard } from '../Data/cards';
 
 const Player = () => {
     const { user } = useAuth();
@@ -18,7 +18,7 @@ const Player = () => {
     const [canSplit, setCanSplit] = useState(false); // Boolean to control whether the player can split
     const [canStand, setCanStand] = useState(true); // Boolean to control whether the player can stand
 
-    const [playerAction, setPlayerAction] = useState(null); // State to track the player's action
+    const [playerAction, setPlayerAction] = useState(null); // State to track the player's action TODO: put this in database
     const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
 
     const handleLogout = () => {
@@ -36,13 +36,13 @@ const Player = () => {
     }
 
     const handleHome = () => {
-        navigate('/');
-
         removePlayer(user.uid).then(() => {
             console.log("Player removed successfully");
         }).catch((error) => {
             console.error("Error removing player:", error);
         });
+        
+        navigate('/');
     }
 
     // Calculate the value of the player's hands
@@ -148,17 +148,11 @@ const Player = () => {
         console.log("Hit action triggered");
         setPlayerAction("Hit");
 
-        if (Array.isArray(cards[0][0])) {
-            // If the player has split, apply the hit to the hand indicated by primaryHand
-            setCards((prevCards) => {
-                const updatedHands = [...prevCards];
-                updatedHands[primaryHand] = [...updatedHands[primaryHand], getRandomCard()];
-                return updatedHands;
-            });
-        } else {
-            // Otherwise, apply the hit to the single hand
-            setCards((prevCards) => [...prevCards, getRandomCard()]);
-        }
+        getRandomCard(user.uid).then((card) => {
+            console.log("Card drawn:", card);
+        }).catch((error) => {
+            console.error("Error drawing card:", error);
+        });
 
         setPlayerAction(null); // Reset action after hitting
     };
@@ -170,10 +164,10 @@ const Player = () => {
 
         if (Array.isArray(cards[0][0])) {
             // If the player has split, apply the double down to the hand indicated by primaryHand
-            setCards((prevCards) => {
-                const updatedHands = [...prevCards];
-                updatedHands[primaryHand] = [...updatedHands[primaryHand], getRandomCard()];
-                return updatedHands;
+            getRandomCard(user.uid).then((card) => {    
+                console.log("Card drawn:", card);
+            }).catch((error) => {
+                console.error("Error drawing card:", error);
             });
 
             if (primaryHand < cards.length - 1) {
@@ -183,24 +177,30 @@ const Player = () => {
             }
         } else {
             // Otherwise, apply the double down to the single hand
-            setCards((prevCards) => [...prevCards, getRandomCard()]);
-            setPlayerAction("Stand"); // Player must stand after doubling down
+            getRandomCard(user.uid).then((card) => {
+                console.log("Card drawn:", card);
+                setPlayerAction("Stand"); // Player must stand after doubling down
+            }).catch((error) => {
+                console.error("Error drawing card:", error);
+            });
         }
     };
 
     const handleSplit = () => {
         console.log("Split action triggered");
-        setPlayerAction("Split");
 
-        if (cards.length === 2 && cards[0][0] === cards[1][0]) {
-            const newHands = [
-                [cards[0], getRandomCard()], // First hand with the first card and a new card
-                [cards[1], getRandomCard()]  // Second hand with the second card and a new card
-            ];
-            setCards(newHands); // Update the state to reflect the split hands
-        }
+        // console.log("Split action triggered");
+        // setPlayerAction("Split");
 
-        setCanSplit(false); // Disable split after splitting
+        // if (cards.length === 2 && cards[0][0] === cards[1][0]) {
+        //     const newHands = [
+        //         [cards[0], getRandomCard(user.uid)], // First hand with the first card and a new card
+        //         [cards[1], getRandomCard(user.uid)]  // Second hand with the second card and a new card
+        //     ];
+        //     setCards(newHands); // Update the state to reflect the split hands
+        // }
+
+        // setCanSplit(false); // Disable split after splitting
     };
 
     const handleStand = () => {

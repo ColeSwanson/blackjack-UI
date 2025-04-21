@@ -88,6 +88,47 @@ export async function getActivePlayersWithCards() {
   }
 }
 
+
+export async function addPlayerCard(UId, card) {
+  const playerCardsRef = ref(database, `Players/${UId}/Cards`);
+  try {
+    const snapshot = await get(playerCardsRef);
+    if (snapshot.exists()) {
+      const cards = snapshot.val();
+      const cardCount = Object.keys(cards).length;
+      const newCardKey = `Card${cardCount + 1}`;
+      const newCardRef = child(playerCardsRef, newCardKey);
+      await set(newCardRef, { Value: card[0], Suit: card[1] });
+    } else {
+      const firstCardRef = child(playerCardsRef, 'Card1');
+      await set(firstCardRef, { Value: card[0], Suit: card[1] });
+    }
+    console.log("Card added successfully");
+  } catch (error) {
+    console.error("Error adding card: ", error);
+  }
+}
+
+export async function addDealerCard(card) {
+  const dealerCardsRef = ref(database, 'Dealer/Cards');
+  try {
+    const snapshot = await get(dealerCardsRef);
+    if (snapshot.exists()) {
+      const cards = snapshot.val();
+      const cardCount = Object.keys(cards).length;
+      const newCardKey = `Card${cardCount + 1}`;
+      const newCardRef = child(dealerCardsRef, newCardKey);
+      await set(newCardRef, { Value: card[0], Suit: card[1] });
+    } else {
+      const firstCardRef = child(dealerCardsRef, 'Card1');
+      await set(firstCardRef, { Value: card[0], Suit: card[1] });
+    }
+    console.log("Dealer card added successfully");
+  } catch (error) {
+    console.error("Error adding dealer card: ", error); 
+  }
+}
+
 export async function getDealerCards() {
   const dealerRef = ref(database, 'Dealer/Cards');
   try {
@@ -112,7 +153,7 @@ export async function addNewPlayer(UId, displayName, isVirtual) {
     await set(playersRef, {
       DisplayName: displayName,
       isVirtual: isVirtual,
-      Cards: ""
+      Cards: {}
     });
     console.log("Player added successfully");
   } catch (error) {
@@ -127,6 +168,34 @@ export async function removePlayer(UId) {
     console.log("Player removed successfully");
   } catch (error) {
     console.error("Error removing player: ", error);
+  }
+}
+
+export async function removeCards() {
+  const dealerRef = ref(database, 'Dealer/Cards');
+  try {
+    await remove(dealerRef);
+    console.log("Dealer cards removed successfully");
+  } catch (error) {
+    console.error("Error removing dealer cards: ", error);
+  }
+  
+  const playersRef = ref(database, 'Players');
+  try {
+    const snapshot = await get(playersRef);
+    if (snapshot.exists()) {
+      const players = snapshot.val();
+      const playerKeys = Object.keys(players);
+      for (const key of playerKeys) {
+        const playerCardsRef = ref(database, `Players/${key}/Cards`);
+        await remove(playerCardsRef);
+      }
+      console.log("All player cards removed successfully");
+    } else {
+      console.log("No players found to remove cards from");
+    }
+  } catch (error) {
+    console.error("Error removing player cards: ", error);
   }
 }
 
