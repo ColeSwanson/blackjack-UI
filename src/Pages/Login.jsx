@@ -12,7 +12,7 @@ const Login = () => {
         e.preventDefault();
         const userCredential = await signInWithEmailAndPassword(auth, email, password).then((userCredential) => { 
             console.log('User logged in:', userCredential.user);
-            navigate('/player');
+            navigate('/');
         }).catch((error) => {
             console.error('Error logging in:', error.message);
             alert('Login failed. Please check your credentials.');

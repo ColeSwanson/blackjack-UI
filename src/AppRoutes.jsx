@@ -23,7 +23,7 @@ const AppRoutes = () => {
             <Routes>
                 <Route path="/" element={<Welcome />} />
                 <Route path="/player" element={user ? <Player /> : <Navigate to="/login" />} />
-                <Route path="/dealer" element={<Dealer />} />
+                <Route path="/dealer" element={user ? <Dealer /> : <Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="*" element={<Navigate to="/" />} />

@@ -1,12 +1,12 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { auth, getActivePlayersWithCards, getDealerCards, getPlayerCards } from '../../firebase';
+import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getPlayerCards, removePlayer } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import getRandomCard from '../Data/cards';
 
 const Player = () => {
-    const { user } = useAuth(); 
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [cards, setCards] = useState([]); // TODO: we will need to get this from firebase once we have the user
     const [value, setValue] = useState([0]);
@@ -22,9 +22,26 @@ const Player = () => {
     const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
 
     const handleLogout = () => {
-        navigate('/');
+        removePlayer(user.uid).then(() => {
+            console.log("Player removed successfully");
+        }).catch((error) => {
+            console.error("Error removing player:", error);
+        });
+
         signOut(auth).catch((error) => {
             console.error("Error logging out:", error);
+        });
+
+        navigate('/');
+    }
+
+    const handleHome = () => {
+        navigate('/');
+
+        removePlayer(user.uid).then(() => {
+            console.log("Player removed successfully");
+        }).catch((error) => {
+            console.error("Error removing player:", error);
         });
     }
 
@@ -54,6 +71,12 @@ const Player = () => {
     };
 
     useEffect(() => {
+        addNewPlayer(user.uid, user.displayName, true).then(() => {
+            console.log("Player added successfully");
+        }).catch((error) => {
+            console.error("Error adding player:", error);
+        });
+
         getPlayerCards(user.uid).then((data) => {
             setCards(data.Cards);
         }).catch((error) => {
@@ -237,7 +260,7 @@ const Player = () => {
                         e.target.style.backgroundColor = '#6c757d';
                         e.target.style.transform = 'scale(1)';
                     }}
-                    onClick={() => navigate('/')}
+                    onClick={handleHome}
                 >
                     Home
                 </button>
