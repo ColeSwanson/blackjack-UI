@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
-import { getPlayersDisplayNames } from '../../firebase';
+import { addNewPlayer, getPlayersDisplayNames } from '../../firebase';
 
 const Dealer = () => {
     const [players, setPlayers] = useState([]);
@@ -7,10 +7,14 @@ const Dealer = () => {
     const [instructions, setInstructions] = useState('');
 
     const addPlayer = () => { //Change this to add player to firebase
-        if (newPlayer.trim()) {
-            setPlayers([...players, newPlayer.trim()]);
+        console.log(`Adding player: ${newPlayer}`);
+        
+        addNewPlayer(newPlayer+"1", newPlayer, false).then(() => {
+            setPlayers((prevPlayers) => [...prevPlayers, { displayName: newPlayer, isVirtual: false }]);
             setNewPlayer('');
-        }
+        }).catch((error) => {
+            console.error("Error adding player: ", error);
+        });       
     };
 
     const removePlayer = (player) => { //Change this to remove player from firebase

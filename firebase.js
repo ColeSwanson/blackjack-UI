@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
-import { child, get, getDatabase, ref } from 'firebase/database';
+import { child, get, getDatabase, ref, set } from 'firebase/database';
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -102,6 +102,20 @@ export async function getDealerCards() {
   } catch (error) {
     console.error("Error getting dealer cards: ", error);
     return null;
+  }
+}
+
+export async function addNewPlayer(UId, displayName, isVirtual) {
+  const playersRef = ref(database, `Players/${UId}`);
+  try {
+    await set(playersRef, {
+      DisplayName: displayName,
+      isVirtual: isVirtual,
+      Cards: {}
+    });
+    console.log("Player added successfully");
+  } catch (error) {
+    console.error("Error adding player: ", error);
   }
 }
 
