@@ -35,11 +35,11 @@ export async function getPlayerCards(UId) {
       return { UId, Cards: formattedCards };
     } else {
       console.log("No data available");
-      return null;
+      return {UId, Cards: []};
     }
   } catch (error) {
     console.error("Error getting player cards: ", error);
-    return null;
+      return {UId, Cards: []};
   }
 }
 
@@ -133,17 +133,17 @@ export async function getDealerCards() {
   const dealerRef = ref(database, 'Dealer/Cards');
   try {
     const snapshot = await get(dealerRef);
-    if (snapshot.exists()) {
+    if (snapshot.exists() && snapshot.val()) {
       const cards = snapshot.val();
       const formattedCards = Object.values(cards).map(card => [card.Value, card.Suit]);
       return { Cards: formattedCards };
     } else {
-      console.log("No data available");
-      return null;
+      console.log("Dealer cards not found");
+      return { Cards: [] };
     }
   } catch (error) {
     console.error("Error getting dealer cards: ", error);
-    return null;
+    return { Cards: [] };
   }
 }
 
