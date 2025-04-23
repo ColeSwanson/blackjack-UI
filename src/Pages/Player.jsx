@@ -21,6 +21,8 @@ const Player = () => {
     const [playerAction, setPlayerAction] = useState(null); // State to track the player's action TODO: put this in database
     const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
 
+    const [update, setUpdate] = useState(false); // State to trigger re-rendering of the component
+
     const handleLogout = () => {
         removePlayer(user.uid).then(() => {
             console.log("Player removed successfully");
@@ -70,13 +72,7 @@ const Player = () => {
         return total;
     };
 
-    useEffect(() => {
-        addNewPlayer(user.uid, user.displayName, true).then(() => {
-            console.log("Player added successfully");
-        }).catch((error) => {
-            console.error("Error adding player:", error);
-        });
-
+    const fetchData = () => {
         getPlayerCards(user.uid).then((data) => {
             setCards(data.Cards);
         }).catch((error) => {
@@ -94,6 +90,14 @@ const Player = () => {
         }
         ).catch((error) => {
             console.error("Error fetching dealer cards:", error);
+        });
+    };
+
+    useEffect(() => {
+        addNewPlayer(user.uid, user.displayName, true).then(() => {
+            console.log("Player added successfully");
+        }).catch((error) => {
+            console.error("Error adding player:", error);
         });
     }, []);
 
@@ -143,6 +147,16 @@ const Player = () => {
             console.log(getPlayerCards(user.uid));
         }
     }, [cards, playerAction, primaryHand]);
+
+    useEffect(() => {
+        setUpdate(false);
+        fetchData();
+
+        const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }, [update]);
+
 
     const handleHit = () => {
         console.log("Hit action triggered");
@@ -269,7 +283,9 @@ const Player = () => {
                 <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                     <h2 style={{ color: '#333' }}>Dealer's Cards</h2>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                        {dealerCards.map((card, index) => {
+                        {dealerCards.length === 0 ? (
+                            <p style={{ color: '#555', textAlign: 'center' }}>No cards to display</p>
+                        ) : dealerCards.map((card, index) => {
                             if (index === 1 && !showSecondDealerCard) {
                                 return (
                                     <div key={index} style={{
@@ -473,8 +489,6 @@ const Player = () => {
                             borderRadius: '5px',
                             backgroundColor: canStand ? '#dc3545' : '#d6d6d6', 
                             color: canStand ? '#fff' : '#a1a1a1',
-                            cursor: canStand ? 'pointer' : 'not-allowed',
-                            transition: canStand ? 'background-color 0.3s, transform 0.2s' : 'none'
                         }}
                         onMouseOver={(e) => {
                             if(canStand)

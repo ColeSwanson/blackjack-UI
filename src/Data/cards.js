@@ -11,7 +11,7 @@ export async function getRandomCard(UId) {
 }
 
 export async function dealCards(Players) {
-    console.log('Dealing cards to players...');
+    console.log('Dealing cards');
     for(let i = 0; i < 2; i++) {
         Players.forEach(player => {
             const randomSuit = suits[Math.floor(Math.random() * suits.length)];
