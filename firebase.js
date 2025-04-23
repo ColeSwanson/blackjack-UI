@@ -172,10 +172,10 @@ export async function removePlayer(UId) {
 }
 
 export async function removeCards() {
-  const dealerRef = ref(database, 'Dealer/Cards');
+  const dealerRef = ref(database, 'Dealer');
   try {
     await remove(dealerRef);
-    console.log("Dealer cards removed successfully");
+    console.log("Dealer removed successfully");
   } catch (error) {
     console.error("Error removing dealer cards: ", error);
   }
