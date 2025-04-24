@@ -1,6 +1,6 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getPlayerCards, removePlayer } from '../../firebase';
+import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getGamestatus, getPlayerCards, removePlayer } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getRandomCard } from '../Data/cards';
@@ -8,15 +8,16 @@ import { getRandomCard } from '../Data/cards';
 const Player = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [cards, setCards] = useState([]); // TODO: we will need to get this from firebase once we have the user
+    const [cards, setCards] = useState([]);
     const [value, setValue] = useState([0]);
-    const [dealerCards, setDealerCards] = useState([]); // TODO: we will need to get this from firebase
-    const [activePlayers, setActivePlayers] = useState([]); // TODO: Fetch this data from firebase
+    const [dealerCards, setDealerCards] = useState([]);
+    const [activePlayers, setActivePlayers] = useState([]);
     const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
     const [canDoubleDown, setCanDoubleDown] = useState(true); // Boolean to control whether the player can double down
     const [canSplit, setCanSplit] = useState(false); // Boolean to control whether the player can split
     const [canStand, setCanStand] = useState(true); // Boolean to control whether the player can stand
+    const [gameStatus, setGameStatus] = useState(null); // State to track the game status
 
     const [playerAction, setPlayerAction] = useState(null); // State to track the player's action TODO: put this in database
     const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
@@ -87,9 +88,16 @@ const Player = () => {
 
         getDealerCards().then((data) => {
             setDealerCards(data.Cards);
-        }
-        ).catch((error) => {
+        }).catch((error) => {
             console.error("Error fetching dealer cards:", error);
+        });
+
+        getGamestatus().then((data) => {
+            console.log("Game status: ", data);
+            setGameStatus(data);
+        })
+        .catch((error) => {
+            console.error("Error fetching game status: ", error);
         });
     };
 
@@ -102,51 +110,59 @@ const Player = () => {
     }, []);
 
     useEffect(() => {
-        if (cards.length > 0) {
-            if (cards.length === 2 && cards[0][0] === cards[1][0]) {
-                setCanSplit(true);
-            } else {
-                setCanSplit(false);
-            }
+        if (gameStatus?.PlayerTurn !== user.uid) {
+            setCanSplit(false);
+            setCanDoubleDown(false);
+            setCanHit(false);
+            setCanStand(false);
+            return;
+        }
+        else
+        {
+            if (cards.length > 0) {
+                if (cards.length === 2 && cards[0][0] === cards[1][0]) {
+                    setCanSplit(true);
+                } else {
+                    setCanSplit(false);
+                }
 
-            if (cards.length === 2) {
-                setCanDoubleDown(true);
-            } else {
-                setCanDoubleDown(false);
-            }
+                if (cards.length === 2) {
+                    setCanDoubleDown(true);
+                } else {
+                    setCanDoubleDown(false);
+                }
 
-            if (Array.isArray(cards[0][0])) {
-                // If the player has split, calculate the value for each hand
-                const handValues = cards.map((hand) => calculateHandValue(hand));
-                setValue(handValues);
+                if (Array.isArray(cards[0][0])) {
+                    // If the player has split, calculate the value for each hand
+                    const handValues = cards.map((hand) => calculateHandValue(hand));
+                    setValue(handValues);
 
-                if (handValues[primaryHand] >= 21) {
-                    if (primaryHand < cards.length - 1) {
-                        setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
-                    } else {
+                    if (handValues[primaryHand] >= 21) {
+                        if (primaryHand < cards.length - 1) {
+                            setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+                        } else {
+                            setPlayerAction("Stand");
+                        }
+                    }
+                } else {
+                    // Otherwise, calculate the value for the single hand
+                    const handValue = calculateHandValue(cards);
+                    setValue([handValue]);
+
+                    if (handValue >= 21) {
                         setPlayerAction("Stand");
                     }
                 }
-            } else {
-                // Otherwise, calculate the value for the single hand
-                const handValue = calculateHandValue(cards);
-                setValue([handValue]);
 
-                if (handValue >= 21) {
-                    setPlayerAction("Stand");
+                if (playerAction === "Stand") {
+                    setCanHit(false); // Disable hit after the player hits
+                    setCanDoubleDown(false); // Disable double down after the player hits
+                    setCanSplit(false); // Disable split after the player hits
+                    setCanStand(false); // Disable stand after the player hits
                 }
             }
-
-            if (playerAction === "Stand") {
-                setCanHit(false); // Disable hit after the player hits
-                setCanDoubleDown(false); // Disable double down after the player hits
-                setCanSplit(false); // Disable split after the player hits
-                setCanStand(false); // Disable stand after the player hits
-            }
-
-            console.log(getPlayerCards(user.uid));
         }
-    }, [cards, playerAction, primaryHand]);
+    }, [cards, playerAction, primaryHand, gameStatus, user.uid]);
 
     useEffect(() => {
         setUpdate(false);

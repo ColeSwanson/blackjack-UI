@@ -207,7 +207,7 @@ export async function getGamestatus() {
       const gameState = snapshot.val();
       return gameState;
     } else {
-      console.log("No data available");
+      console.log("No gamestatus available");
       return null;
     }
   } catch (error) {
