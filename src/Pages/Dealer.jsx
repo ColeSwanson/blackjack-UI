@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { dealCards } from '../Data/cards';
 
@@ -81,6 +81,10 @@ const Dealer = () => {
         })
         .catch((error) => {
             console.error("Error removing dealer cards: ", error);
+        });
+
+        players.forEach(player => {
+            updatePlayerAction(player.UId, "");
         });
 
         setUpdate(true);
