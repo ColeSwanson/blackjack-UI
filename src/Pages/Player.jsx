@@ -120,6 +120,9 @@ const Player = () => {
         else
         {
             if (cards.length > 0) {
+                setCanHit(true); // Enable hit if there are cards
+                setCanStand(true); // Enable stand if there are cards
+
                 if (cards.length === 2 && cards[0][0] === cards[1][0]) {
                     setCanSplit(true);
                 } else {

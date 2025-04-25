@@ -243,10 +243,10 @@ export async function updateInstruction(cards) {
   }
 }
 
-export async function updatePlayerAction(player) {
-  const gameStateRef = ref(database, 'Gamestatus/PlayerAction');
+export async function updatePlayerAction(UId, action) {
+  const gameStateRef = ref(database, `Players/${UId}/PlayerAction`);
   try {
-    await set(gameStateRef, player);
+    await set(gameStateRef, action);
     console.log("Player action updated successfully");
   } catch (error) {
     console.error("Error updating player action: ", error);
