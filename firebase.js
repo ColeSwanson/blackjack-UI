@@ -92,17 +92,20 @@ export async function getActivePlayersWithCards() {
 export async function addPlayerCard(UId, card) {
   const playerCardsRef = ref(database, `Players/${UId}/Cards`);
   try {
-    const snapshot = await get(playerCardsRef);
-    if (snapshot.exists()) {
-      const cards = snapshot.val();
-      const cardCount = Object.keys(cards).length;
-      const newCardKey = `Card${cardCount + 1}`;
-      const newCardRef = child(playerCardsRef, newCardKey);
-      await set(newCardRef, { Value: card[0], Suit: card[1] });
-    } else {
-      const firstCardRef = child(playerCardsRef, 'Card1');
-      await set(firstCardRef, { Value: card[0], Suit: card[1] });
-    }
+    await import('firebase/database').then(({ runTransaction }) =>
+      runTransaction(playerCardsRef, (cards) => {
+        if (!cards) {
+          cards = {};
+        }
+        // Find the next available card key
+        let cardIndex = 1;
+        while (cards[`Card${cardIndex}`]) {
+          cardIndex++;
+        }
+        cards[`Card${cardIndex}`] = { Value: card[0], Suit: card[1] };
+        return cards;
+      })
+    );
     console.log("Card added successfully");
   } catch (error) {
     console.error("Error adding card: ", error);
@@ -112,20 +115,24 @@ export async function addPlayerCard(UId, card) {
 export async function addDealerCard(card) {
   const dealerCardsRef = ref(database, 'Dealer/Cards');
   try {
-    const snapshot = await get(dealerCardsRef);
-    if (snapshot.exists()) {
-      const cards = snapshot.val();
-      const cardCount = Object.keys(cards).length;
-      const newCardKey = `Card${cardCount + 1}`;
-      const newCardRef = child(dealerCardsRef, newCardKey);
-      await set(newCardRef, { Value: card[0], Suit: card[1] });
-    } else {
-      const firstCardRef = child(dealerCardsRef, 'Card1');
-      await set(firstCardRef, { Value: card[0], Suit: card[1] });
-    }
+    await import('firebase/database').then(({ runTransaction }) =>
+      runTransaction(dealerCardsRef, (cards) => {
+        if (!cards) {
+          cards = {};
+        }
+        // Find the next available card key
+        let cardIndex = 1;
+        while (cards[`Card${cardIndex}`]) {
+          cardIndex++;
+        }
+        cards[`Card${cardIndex}`] = { Value: card[0], Suit: card[1] };
+        return cards;
+      })
+    );
     console.log("Dealer card added successfully");
   } catch (error) {
-    console.error("Error adding dealer card: ", error); 
+    console.error("Error adding dealer card: ", error);
+    return { Cards: [] };
   }
 }
 
@@ -233,6 +240,16 @@ export async function updateInstruction(cards) {
     console.log("Instruction updated successfully");
   } catch (error) {
     console.error("Error updating instruction: ", error);
+  }
+}
+
+export async function updatePlayerAction(player) {
+  const gameStateRef = ref(database, 'Gamestatus/PlayerAction');
+  try {
+    await set(gameStateRef, player);
+    console.log("Player action updated successfully");
+  } catch (error) {
+    console.error("Error updating player action: ", error);
   }
 }
 

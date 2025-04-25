@@ -1,6 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
 import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction } from '../../firebase';
-import { set } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 import { dealCards } from '../Data/cards';
 

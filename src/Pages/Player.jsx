@@ -335,11 +335,11 @@ const Player = () => {
                                     padding: '5px',
                                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                                 }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
-                                    <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
-                                        {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue.toString()}</span>
+                                    <span style={{ fontSize: '20px', color: card[1] === 'h' || card[1] === 'd' ? 'red' : 'black' }}>
+                                        {card[1] === 'h' ? '♥' : card[1] === 'd' ? '♦' : card[1] === 's' ? '♠' : '♣'}
                                     </span>
-                                    <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue.toString()}</span>
                                 </div>
                             );
                         })}
@@ -382,8 +382,8 @@ const Player = () => {
                                                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                                             }}>
                                                 <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
-                                                <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
-                                                    {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                                <span style={{ fontSize: '20px', color: card[1] === 'h' || card[1] === 'd' ? 'red' : 'black' }}>
+                                                    {card[1] === 'h' ? '♥' : card[1] === 'd' ? '♦' : card[1] === 's' ? '♠' : '♣'}
                                                 </span>
                                                 <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
                                             </div>
@@ -410,11 +410,11 @@ const Player = () => {
                                         padding: '5px',
                                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                                     }}>
-                                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
-                                        <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
-                                            {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                        <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue.toString()}</span>
+                                        <span style={{ fontSize: '20px', color: card[1] === 'h' || card[1] === 'd' ? 'red' : 'black' }}>
+                                            {card[1] === 'h' ? '♥' : card[1] === 'd' ? '♦' : card[1] === 's' ? '♠' : '♣'}
                                         </span>
-                                        <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
+                                        <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue.toString()}</span>
                                     </div>
                                 );
                             })}
@@ -547,8 +547,8 @@ const Player = () => {
                                                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                                             }}>
                                                 <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{cardValue}</span>
-                                                <span style={{ fontSize: '20px', color: card[1] === 'H' || card[1] === 'D' ? 'red' : 'black' }}>
-                                                    {card[1] === 'H' ? '♥' : card[1] === 'D' ? '♦' : card[1] === 'S' ? '♠' : '♣'}
+                                                <span style={{ fontSize: '20px', color: card[1] === 'h' || card[1] === 'd' ? 'red' : 'black' }}>
+                                                    {card[1] === 'h' ? '♥' : card[1] === 'd' ? '♦' : card[1] === 's' ? '♠' : '♣'}
                                                 </span>
                                                 <span style={{ fontSize: '12px', fontWeight: 'bold', transform: 'rotate(180deg)' }}>{cardValue}</span>
                                             </div>
