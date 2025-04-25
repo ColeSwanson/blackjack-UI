@@ -253,4 +253,21 @@ export async function updatePlayerAction(UId, action) {
   }
 }
 
+export async function getPlayerAction(UId) {
+  const playerActionRef = ref(database, `Players/${UId}/PlayerAction`);
+  try {
+    const snapshot = await get(playerActionRef);
+    if (snapshot.exists()) {
+      const action = snapshot.val();
+      return action;
+    } else {
+      console.log("No player action available");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting player action: ", error);
+    return null;
+  }
+}
+
 export { auth }

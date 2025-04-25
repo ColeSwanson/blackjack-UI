@@ -1,6 +1,6 @@
 import { signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getGamestatus, getPlayerCards, removePlayer } from '../../firebase';
+import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getGamestatus, getPlayerAction, getPlayerCards, removePlayer, updatePlayerAction } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getRandomCard } from '../Data/cards';
@@ -19,7 +19,7 @@ const Player = () => {
     const [canStand, setCanStand] = useState(true); // Boolean to control whether the player can stand
     const [gameStatus, setGameStatus] = useState(null); // State to track the game status
 
-    const [playerAction, setPlayerAction] = useState(null); // State to track the player's action TODO: put this in database
+    const [playerAction, setPlayerAction] = useState(null);
     const [primaryHand, setPrimaryHand] = useState(0); // State to track the primary hand of the player
 
     const [update, setUpdate] = useState(false); // State to trigger re-rendering of the component
@@ -99,6 +99,13 @@ const Player = () => {
         .catch((error) => {
             console.error("Error fetching game status: ", error);
         });
+
+        getPlayerAction(user.uid).then((data) => {
+            console.log("Player action: ", data);
+            setPlayerAction(data);
+        }).catch((error) => {
+            console.error("Error fetching player action: ", error);
+        });
     };
 
     useEffect(() => {
@@ -144,7 +151,7 @@ const Player = () => {
                         if (primaryHand < cards.length - 1) {
                             setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
                         } else {
-                            setPlayerAction("Stand");
+                            updatePlayerAction(user.uid, "Stand");
                         }
                     }
                 } else {
@@ -153,7 +160,7 @@ const Player = () => {
                     setValue([handValue]);
 
                     if (handValue >= 21) {
-                        setPlayerAction("Stand");
+                        updatePlayerAction(user.uid,"Stand");
                     }
                 }
 
@@ -179,7 +186,7 @@ const Player = () => {
 
     const handleHit = () => {
         console.log("Hit action triggered");
-        setPlayerAction("Hit");
+        updatePlayerAction(user.uid,"Hit");
 
         getRandomCard(user.uid).then((card) => {
             console.log("Card drawn:", card);
@@ -187,12 +194,13 @@ const Player = () => {
             console.error("Error drawing card:", error);
         });
 
-        setPlayerAction(null); // Reset action after hitting
+        updatePlayerAction(user.uid,null); // Reset action after hitting
+        setUpdate(true);
     };
 
     const handleDoubleDown = () => {
         console.log("Double Down action triggered");
-        setPlayerAction("Double Down");
+        updatePlayerAction(user.uid,"Double Down");
         // TODO: Implement logic to double the player's bet
 
         if (Array.isArray(cards[0][0])) {
@@ -206,24 +214,26 @@ const Player = () => {
             if (primaryHand < cards.length - 1) {
                 setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
             } else {
-                setPlayerAction("Stand"); // Stand if it's the final hand
+                updatePlayerAction(user.uid,"Stand"); // Stand if it's the final hand
             }
         } else {
             // Otherwise, apply the double down to the single hand
             getRandomCard(user.uid).then((card) => {
                 console.log("Card drawn:", card);
-                setPlayerAction("Stand"); // Player must stand after doubling down
+                updatePlayerAction(user.uid,"Stand"); // Player must stand after doubling down
             }).catch((error) => {
                 console.error("Error drawing card:", error);
             });
         }
+
+        setUpdate(true);
     };
 
     const handleSplit = () => {
         console.log("Split action triggered");
 
         // console.log("Split action triggered");
-        // setPlayerAction("Split");
+        // updatePlayerAction(user.uid,"Split");
 
         // if (cards.length === 2 && cards[0][0] === cards[1][0]) {
         //     const newHands = [
@@ -234,6 +244,7 @@ const Player = () => {
         // }
 
         // setCanSplit(false); // Disable split after splitting
+        setUpdate(true);
     };
 
     const handleStand = () => {
@@ -243,8 +254,9 @@ const Player = () => {
             // If the player has split and there are more hands to play, move to the next hand
             setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
         } else {
-            setPlayerAction("Stand")
+            updatePlayerAction(user.uid,"Stand")
         }
+        setUpdate(true);
     };
 
     return (
