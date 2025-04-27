@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayerAction, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { dealCards } from '../Data/cards';
 
@@ -119,6 +119,47 @@ const Dealer = () => {
         getGamestatus().then((data) => {
             console.log("Game status: ", data);
             setGameStatus(data);
+
+            if(data.PlayerTurn){
+                console.log(data.PlayerTurn);
+                const currentPlayerIndex = players.findIndex(p => p.UId === data.PlayerTurn);
+                if (currentPlayerIndex !== -1) {
+                    const currentPlayer = players[currentPlayerIndex];
+                    // Fetch the current player's action from Firestore
+                    // Assuming updatePlayerAction returns a Promise that resolves to the action string
+                    // If you have a getPlayerAction function, use that instead
+                    getPlayerAction(currentPlayer.UId).then((action) => {
+                        if (action === "Stand") { // If last player, set turn to dealer
+                            if (currentPlayerIndex === players.length - 1) {
+                                updatePlayerTurn("dealer").then(() => {
+                                    console.log("Player turn set to dealer successfully");
+                                    updateInstruction("Deal card to dealer").then(() => {
+                                        console.log("Instruction updated successfully");
+                                    }).catch((error) => {
+                                        console.error("Error updating instruction: ", error);
+                                    });
+                                }).catch((error) => {
+                                    console.error("Error setting player turn to dealer: ", error);
+                                });
+                            } else {
+                                // Otherwise, set turn to next player
+                                updatePlayerTurn(players[currentPlayerIndex + 1].UId).then(() => {
+                                    console.log("Player turn set to next player successfully");
+                                    updateInstruction("Deal card to " + players[currentPlayerIndex + 1].displayName).then(() => {
+                                        console.log("Instruction updated successfully");
+                                    }).catch((error) => {
+                                        console.error("Error updating instruction: ", error);
+                                    });
+                                }).catch((error) => {
+                                    console.error("Error setting player turn to next player: ", error);
+                                });
+                            }
+                        }
+                    }).catch((error) => {
+                        console.error("Error fetching player action: ", error);
+                    });
+                }
+            }
         })
         .catch((error) => {
             console.error("Error fetching game status: ", error);
