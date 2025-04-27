@@ -189,14 +189,6 @@ const Player = () => {
     const handleHit = () => {
         console.log("Hit action triggered");
         updatePlayerAction(user.uid,"Hit");
-
-        getRandomCard(user.uid).then((card) => {
-            console.log("Card drawn:", card);
-        }).catch((error) => {
-            console.error("Error drawing card:", error);
-        });
-
-        updatePlayerAction(user.uid,null); // Reset action after hitting
         setUpdate(true);
     };
 
@@ -205,28 +197,28 @@ const Player = () => {
         updatePlayerAction(user.uid,"Double Down");
         // TODO: Implement logic to double the player's bet
 
-        if (Array.isArray(cards[0][0])) {
-            // If the player has split, apply the double down to the hand indicated by primaryHand
-            getRandomCard(user.uid).then((card) => {    
-                console.log("Card drawn:", card);
-            }).catch((error) => {
-                console.error("Error drawing card:", error);
-            });
+        // if (Array.isArray(cards[0][0])) {
+        //     // If the player has split, apply the double down to the hand indicated by primaryHand
+        //     getRandomCard(user.uid).then((card) => {    
+        //         console.log("Card drawn:", card);
+        //     }).catch((error) => {
+        //         console.error("Error drawing card:", error);
+        //     });
 
-            if (primaryHand < cards.length - 1) {
-                setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
-            } else {
-                updatePlayerAction(user.uid,"Stand"); // Stand if it's the final hand
-            }
-        } else {
-            // Otherwise, apply the double down to the single hand
-            getRandomCard(user.uid).then((card) => {
-                console.log("Card drawn:", card);
-                updatePlayerAction(user.uid,"Stand"); // Player must stand after doubling down
-            }).catch((error) => {
-                console.error("Error drawing card:", error);
-            });
-        }
+        //     if (primaryHand < cards.length - 1) {
+        //         setPrimaryHand((prevPrimaryHand) => prevPrimaryHand + 1);
+        //     } else {
+        //         updatePlayerAction(user.uid,"Stand"); // Stand if it's the final hand
+        //     }
+        // } else {
+        //     // Otherwise, apply the double down to the single hand
+        //     getRandomCard(user.uid).then((card) => {
+        //         console.log("Card drawn:", card);
+        //         updatePlayerAction(user.uid,"Stand"); // Player must stand after doubling down
+        //     }).catch((error) => {
+        //         console.error("Error drawing card:", error);
+        //     });
+        // }
 
         setUpdate(true);
     };
@@ -513,7 +505,7 @@ const Player = () => {
                                 e.target.style.transform = 'scale(1)';
                             }
                         }}
-                        disabled={!canSplit}
+                        disabled={!canSplit && false}
                         onClick={() => handleSplit()}>Split</button>
                     <button 
                         style={{ 

@@ -54,7 +54,7 @@ const Dealer = () => {
             });
         }
 
-        updateInstruction("Deal card to " + players[0].displayName).then(() => {
+        updateInstruction("Waiting on " + players[0].displayName +"'s action").then(() => {
             console.log("Instruction updated successfully");
         })
         .catch((error) => {
@@ -154,6 +154,46 @@ const Dealer = () => {
                                 });
                             }
                         }
+                        else if (action === "Hit") {
+                            updateInstruction("Deal card to " + currentPlayer.displayName).then(() => {
+                                console.log("Instruction updated successfully");
+                            }).catch((error) => {
+                                console.error("Error updating instruction: ", error);
+                            });
+
+                            updatePlayerAction(currentPlayer.UId, "").then(() => {
+                                console.log("Player action updated successfully");
+                            }).catch((error) => {
+                                console.error("Error updating player action: ", error);
+                            });
+
+                            //temporary
+                            getRandomCard(currentPlayer.UId).then(() => {
+                                console.log("Card dealt to " + currentPlayer.displayName);
+                            }).catch((error) => {
+                                console.error("Error dealing card to player: ", error);
+                            });
+                        }
+                        else if (action === "Double Down") {
+                            updateInstruction("Deal card to " + currentPlayer.displayName + " (Double Down)").then(() => {
+                                console.log("Instruction updated successfully");
+                            }).catch((error) => {
+                                console.error("Error updating instruction: ", error);
+                            });
+
+                            updatePlayerAction(currentPlayer.UId, "Stand").then(() => {
+                                console.log("Player action updated successfully");
+                            }).catch((error) => {
+                                console.error("Error updating player action: ", error);
+                            });
+
+                            //temporary
+                            getRandomCard(currentPlayer.UId).then(() => {
+                                console.log("Card dealt to " + currentPlayer.displayName + " (Double Down)");
+                            }).catch((error) => {
+                                console.error("Error dealing card to player: ", error);
+                            });
+                        }
                     }).catch((error) => {
                         console.error("Error fetching player action: ", error);
                     });
@@ -214,6 +254,7 @@ const Dealer = () => {
                     console.error("Error updating instruction: ", error);
                 });
             }
+            setUpdate(true);
         } catch (err) {
             console.error("Error during dealer's turn:", err);
         }
