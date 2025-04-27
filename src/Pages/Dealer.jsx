@@ -306,6 +306,30 @@ const Dealer = () => {
                     )}
                 </div>
             </div>
+            {gameStatus.PlayerTurn && players.length > 0 && (() => {
+                const currentPlayer = players.find(p => p.UId === gameStatus.PlayerTurn);
+                if (currentPlayer && !currentPlayer.isVirtual) {
+                    return (
+                        <div style={{ marginTop: '30px', textAlign: 'center' }}>
+                            <button
+                                onClick={() => updatePlayerAction(currentPlayer.UId, "Stand").then(() => setUpdate(true))}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#2196F3',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontSize: '16px'
+                                }}
+                            >
+                                Stand
+                            </button>
+                        </div>
+                    );
+                }
+                return null;
+            })()}
         </>
     );
 };
