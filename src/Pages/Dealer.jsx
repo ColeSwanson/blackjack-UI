@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction } from '../../firebase';
+import { addNewPlayer, getGamestatus, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { dealCards } from '../Data/cards';
 
@@ -43,11 +43,17 @@ const Dealer = () => {
             console.error("Error starting game: ", error);
         });
 
-        // Find the displayName for the current player's UId
-        const currentPlayer = players.find(player => player.UId === gameStatus.PlayerTurn);
-        const displayName = currentPlayer ? currentPlayer.displayName : gameStatus.PlayerTurn;
+        // Set the player turn to the first player's UId
+        if (players.length > 0) {
+            updatePlayerTurn(players[0].UId).then(() => {
+                console.log("Player turn set successfully");
+            })
+            .catch((error) => {
+                console.error("Error setting player turn: ", error);
+            });
+        }
 
-        updateInstruction("Deal card to " + displayName).then(() => {
+        updateInstruction("Deal card to " + players[0].displayName).then(() => {
             console.log("Instruction updated successfully");
         })
         .catch((error) => {
@@ -78,6 +84,13 @@ const Dealer = () => {
         })
         .catch((error) => {
             console.error("Error updating instruction: ", error);
+        });
+
+        updatePlayerTurn("").then(() => {
+            console.log("Player turn reset successfully");
+        })
+        .catch((error) => {
+            console.error("Error resetting player turn: ", error);
         });
 
         removeCards().then(() => {

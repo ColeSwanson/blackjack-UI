@@ -253,6 +253,16 @@ export async function updatePlayerAction(UId, action) {
   }
 }
 
+export async function updatePlayerTurn(UId) {
+  const gameStateRef = ref(database, 'Gamestatus/PlayerTurn');
+  try {
+    await set(gameStateRef, UId);
+    console.log("Player turn updated successfully");
+  } catch (error) {
+    console.error("Error updating player turn: ", error);
+  }
+}
+
 export async function getPlayerAction(UId) {
   const playerActionRef = ref(database, `Players/${UId}/PlayerAction`);
   try {
