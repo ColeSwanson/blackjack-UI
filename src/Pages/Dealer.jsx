@@ -43,7 +43,11 @@ const Dealer = () => {
             console.error("Error starting game: ", error);
         });
 
-        updateInstruction("Deal card to " + gameStatus.PlayerTurn).then(() => {
+        // Find the displayName for the current player's UId
+        const currentPlayer = players.find(player => player.UId === gameStatus.PlayerTurn);
+        const displayName = currentPlayer ? currentPlayer.displayName : gameStatus.PlayerTurn;
+
+        updateInstruction("Deal card to " + displayName).then(() => {
             console.log("Instruction updated successfully");
         })
         .catch((error) => {
