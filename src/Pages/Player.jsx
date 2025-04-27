@@ -95,6 +95,8 @@ const Player = () => {
         getGamestatus().then((data) => {
             console.log("Game status: ", data);
             setGameStatus(data);
+            console.log("Player turn: ", data.PlayerTurn);
+            setShowSecondDealerCard(data.PlayerTurn === "dealer" ? true : false); // Show the second dealer card if it's the dealer's turn
         })
         .catch((error) => {
             console.error("Error fetching game status: ", error);
