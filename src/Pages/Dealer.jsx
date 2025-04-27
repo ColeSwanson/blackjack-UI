@@ -1,7 +1,8 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getGamestatus, getPlayerAction, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
+import { addNewPlayer, getDealerCards, getGamestatus, getPlayerAction, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
-import { dealCards } from '../Data/cards';
+import { calculateHandValue, dealCards, getRandomCard, getRandomDealerCard } from '../Data/cards';
+import { get } from 'firebase/database';
 
 const Dealer = () => {
     const navigate = useNavigate();
@@ -117,11 +118,9 @@ const Dealer = () => {
         });
 
         getGamestatus().then((data) => {
-            console.log("Game status: ", data);
             setGameStatus(data);
 
             if(data.PlayerTurn){
-                console.log(data.PlayerTurn);
                 const currentPlayerIndex = players.findIndex(p => p.UId === data.PlayerTurn);
                 if (currentPlayerIndex !== -1) {
                     const currentPlayer = players[currentPlayerIndex];
@@ -174,6 +173,63 @@ const Dealer = () => {
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [update]);
+
+    const playDealerTurn = async () => {
+        try {
+            let dealerValue = null;
+            await getDealerCards().then((data) => {
+                console.log("Dealer hand: ", data);
+                dealerValue = calculateHandValue(data.Cards);
+            }).catch((error) => {
+                console.error("Error fetching dealer cards: ", error);
+            });
+
+            // Dealer hits until 17 or more
+            if (dealerValue < 17) {
+                updateInstruction("Deal card to dealer").then(() => {
+                    console.log("Instruction updated successfully");
+                }).catch((error) => {
+                    console.error("Error updating instruction: ", error);
+                });
+
+                // Temporary
+                getRandomDealerCard().then(() => {
+                    console.log("Dealer hits and gets a card");
+                    playDealerTurn(); // Call again to check the new value
+                }).catch((error) => {
+                    console.error("Error dealing card to dealer: ", error);
+                });
+            }
+            else if (dealerValue > 21) {
+                updateInstruction("Dealer busts with " + dealerValue).then(() => {
+                    console.log("Instruction updated successfully");
+                }).catch((error) => {
+                    console.error("Error updating instruction: ", error);
+                });
+            }
+            else {
+                updateInstruction("Dealer stands with " + dealerValue).then(() => {
+                    console.log("Instruction updated successfully");
+                }).catch((error) => {
+                    console.error("Error updating instruction: ", error);
+                });
+            }
+        } catch (err) {
+            console.error("Error during dealer's turn:", err);
+        }
+    };
+
+    useEffect(() => {
+        // Dealer's turn logic
+        if (
+            gameStatus.PlayerTurn === "dealer" &&
+            gameStatus.isPlaying &&
+            players.length > 0
+        ) {
+            playDealerTurn();
+        }
+        // eslint-disable-next-line
+    }, [gameStatus.PlayerTurn, gameStatus.isPlaying]);
 
     return (
         <>

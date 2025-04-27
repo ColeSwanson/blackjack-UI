@@ -10,6 +10,13 @@ export async function getRandomCard(UId) {
     await addPlayerCard(UId, [randomValue, randomSuit]);
 }
 
+export async function getRandomDealerCard() {
+    const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+    const randomValue = values[Math.floor(Math.random() * values.length)];
+
+    await addDealerCard([randomValue, randomSuit]);
+}
+
 export async function dealCards(Players) {
     console.log('Dealing cards');
     for(let i = 0; i < 2; i++) {
@@ -30,4 +37,31 @@ export async function dealCards(Players) {
             console.error(`Error dealing card to dealer: ${error}`);
         });
     }
+}
+
+export const calculateHandValue = (hand) => {
+    if (!hand || hand.length === 0) return 0;
+    let value = 0;
+    let aceCount = 0;
+
+    hand.forEach(card => {
+        // card is [value, suit]
+        const cardValue = Array.isArray(card) ? card[0] : card;
+        if (cardValue === 1) {
+            value += 11;
+            aceCount += 1;
+        } else if (cardValue >= 11 && cardValue <= 13) {
+            value += 10;
+        } else if (cardValue >= 2 && cardValue <= 10) {
+            value += cardValue;
+        }
+    });
+
+    // Adjust for aces if value > 21
+    while (value > 21 && aceCount > 0) {
+        value -= 10;
+        aceCount -= 1;
+    }
+
+    return value;
 }
