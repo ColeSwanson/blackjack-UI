@@ -133,7 +133,7 @@ const Dealer = () => {
                             if (currentPlayerIndex === players.length - 1) {
                                 updatePlayerTurn("dealer").then(() => {
                                     console.log("Player turn set to dealer successfully");
-                                    updateInstruction("Deal card to dealer").then(() => {
+                                    updateInstruction("Reveal dealer cards").then(() => {
                                         console.log("Instruction updated successfully");
                                     }).catch((error) => {
                                         console.error("Error updating instruction: ", error);
@@ -145,7 +145,7 @@ const Dealer = () => {
                                 // Otherwise, set turn to next player
                                 updatePlayerTurn(players[currentPlayerIndex + 1].UId).then(() => {
                                     console.log("Player turn set to next player successfully");
-                                    updateInstruction("Deal card to " + players[currentPlayerIndex + 1].displayName).then(() => {
+                                    updateInstruction("Waiting on " + players[currentPlayerIndex + 1].displayName + "'s action").then(() => {
                                         console.log("Instruction updated successfully");
                                     }).catch((error) => {
                                         console.error("Error updating instruction: ", error);
