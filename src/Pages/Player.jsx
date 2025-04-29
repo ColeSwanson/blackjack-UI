@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getGamestatus, getPlayerAction, getPlayerCards, removePlayer, updatePlayerAction } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getRandomCard } from '../Data/cards';
 
 const Player = () => {
     const { user } = useAuth();
@@ -355,7 +354,7 @@ const Player = () => {
                     </div>
                 </div>
                 <h2 style={{ textAlign: 'center', color: '#333' }}>{user.displayName}</h2>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px', position: 'relative' }}>
                     {cards.length === 0 ? (
                         <p style={{ color: '#555', textAlign: 'center' }}>No cards to display</p>
                     ) : Array.isArray(cards[0]) && cards[0].length === 0 ? (
@@ -368,7 +367,8 @@ const Player = () => {
                                 alignItems: 'center',
                                 border: handIndex === primaryHand ? '2px solid #007bff' : 'none', 
                                 borderRadius: '5px', 
-                                padding: '10px' 
+                                padding: '10px',
+                                position: 'relative'
                             }}>
                                 <h4 style={{ marginBottom: '10px', color: handIndex === primaryHand ? '#007bff' : '#555' }}>
                                     Hand {handIndex + 1}
@@ -399,10 +399,27 @@ const Player = () => {
                                         );
                                     })}
                                 </div>
+                                {value[handIndex] > 21 && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                        color: '#fff',
+                                        padding: '10px 20px',
+                                        borderRadius: '5px',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold',
+                                        zIndex: 1
+                                    }}>
+                                        Bust
+                                    </div>
+                                )}
                             </div>
                         ))
                     ) : (
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '10px', position: 'relative' }}>
                             {cards.map((card, index) => {
                                 const cardValue = card[0] === 1 ? 'A' : card[0] === 11 ? 'J' : card[0] === 12 ? 'Q' : card[0] === 13 ? 'K' : card[0];
                                 return (
@@ -427,6 +444,23 @@ const Player = () => {
                                     </div>
                                 );
                             })}
+                            {value[primaryHand] > 21 && (
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                    color: '#fff',
+                                    padding: '10px 20px',
+                                    borderRadius: '5px',
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    zIndex: 1
+                                }}>
+                                    Bust
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -173,6 +173,12 @@ const Dealer = () => {
                             }).catch((error) => {
                                 console.error("Error dealing card to player: ", error);
                             });
+
+                            updateInstruction("Waiting on " + currentPlayer.displayName + "'s action").then(() => {
+                                console.log("Instruction updated successfully");
+                            }).catch((error) => {
+                                console.error("Error updating instruction: ", error);
+                            });
                         }
                         else if (action === "Double Down") {
                             updateInstruction("Deal card to " + currentPlayer.displayName + " (Double Down)").then(() => {
