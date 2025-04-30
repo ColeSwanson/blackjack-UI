@@ -62,6 +62,6 @@ export const calculateHandValue = (hand) => {
         value -= 10;
         aceCount -= 1;
     }
-
+ 
     return value;
 }

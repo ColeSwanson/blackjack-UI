@@ -1,5 +1,5 @@
 import React, { use, useEffect, useState } from 'react';
-import { addNewPlayer, getDealerCards, getGamestatus, getPlayerAction, getPlayersDisplayNames, removeCards, removePlayer, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
+import { addNewPlayer, getDealerCards, getGamestatus, getPlayerAction, getPlayersDisplayNames, removeCards, removePlayer, setInitialDealDone, setPlaying, updateInstruction, updatePlayerAction, updatePlayerTurn } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { calculateHandValue, dealCards, getRandomCard, getRandomDealerCard } from '../Data/cards';
 import { get } from 'firebase/database';
@@ -54,20 +54,20 @@ const Dealer = () => {
             });
         }
 
-        updateInstruction("Waiting on " + players[0].displayName +"'s action").then(() => {
-            console.log("Instruction updated successfully");
-        })
-        .catch((error) => {
-            console.error("Error updating instruction: ", error);
-        });
+        // updateInstruction("Waiting on " + players[0].displayName +"'s action").then(() => {
+        //     console.log("Instruction updated successfully");
+        // })
+        // .catch((error) => {
+        //     console.error("Error updating instruction: ", error);
+        // });
 
-        //TEMPORARY
-        dealCards(players).then(() => {
-            console.log("Cards dealt successfully");
-        })
-        .catch((error) => {
-            console.error("Error dealing cards: ", error);
-        });
+        // //TEMPORARY
+        // dealCards(players).then(() => {
+        //     console.log("Cards dealt successfully");
+        // })
+        // .catch((error) => {
+        //     console.error("Error dealing cards: ", error);
+        // });
         
         setUpdate(true);
     }
@@ -78,6 +78,12 @@ const Dealer = () => {
         })
         .catch((error) => {
             console.error("Error ending game: ", error);
+        });
+
+        setInitialDealDone(false).then(() => {
+            console.log("Initial deal state reset successfully");
+        }).catch((error) => {
+            console.error("Error resetting initial deal state: ", error);
         });
 
         updateInstruction("Start Game").then(() => {
@@ -132,7 +138,7 @@ const Dealer = () => {
                             if (currentPlayerIndex === players.length - 1) {
                                 updatePlayerTurn("dealer").then(() => {
                                     console.log("Player turn set to dealer successfully");
-                                    updateInstruction("Reveal dealer cards").then(() => {
+                                    updateInstruction("Deal card to dealer").then(() => {
                                         console.log("Instruction updated successfully");
                                     }).catch((error) => {
                                         console.error("Error updating instruction: ", error);
@@ -167,18 +173,11 @@ const Dealer = () => {
                                 console.error("Error updating player action: ", error);
                             });
 
-                            //temporary
-                            getRandomCard(currentPlayer.UId).then(() => {
-                                console.log("Card dealt to " + currentPlayer.displayName);
-                            }).catch((error) => {
-                                console.error("Error dealing card to player: ", error);
-                            });
-
-                            updateInstruction("Waiting on " + currentPlayer.displayName + "'s action").then(() => {
-                                console.log("Instruction updated successfully");
-                            }).catch((error) => {
-                                console.error("Error updating instruction: ", error);
-                            });
+                            // updateInstruction("Waiting on " + currentPlayer.displayName + "'s action").then(() => {
+                            //     console.log("Instruction updated successfully");
+                            // }).catch((error) => {
+                            //     console.error("Error updating instruction: ", error);
+                            // });
                         }
                         else if (action === "Double Down") {
                             updateInstruction("Deal card to " + currentPlayer.displayName + " (Double Down)").then(() => {
@@ -187,18 +186,18 @@ const Dealer = () => {
                                 console.error("Error updating instruction: ", error);
                             });
 
-                            updatePlayerAction(currentPlayer.UId, "Stand").then(() => {
-                                console.log("Player action updated successfully");
-                            }).catch((error) => {
-                                console.error("Error updating player action: ", error);
-                            });
+                            // //temporary
+                            // updatePlayerAction(currentPlayer.UId, "Stand").then(() => {
+                            //     console.log("Player action updated successfully");
+                            // }).catch((error) => {
+                            //     console.error("Error updating player action: ", error);
+                            // });
 
-                            //temporary
-                            getRandomCard(currentPlayer.UId).then(() => {
-                                console.log("Card dealt to " + currentPlayer.displayName + " (Double Down)");
-                            }).catch((error) => {
-                                console.error("Error dealing card to player: ", error);
-                            });
+                            // getRandomCard(currentPlayer.UId).then(() => {
+                            //     console.log("Card dealt to " + currentPlayer.displayName + " (Double Down)");
+                            // }).catch((error) => {
+                            //     console.error("Error dealing card to player: ", error);
+                            // });
                         }
                     }).catch((error) => {
                         console.error("Error fetching player action: ", error);
@@ -215,68 +214,80 @@ const Dealer = () => {
         setUpdate(false);
         fetchData();
 
-        const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
+        const intervalId = setInterval(fetchData, 2000); // Fetch every 2 seconds
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [update]);
 
-    const playDealerTurn = async () => {
-        try {
-            let dealerValue = null;
-            await getDealerCards().then((data) => {
-                console.log("Dealer hand: ", data);
-                dealerValue = calculateHandValue(data.Cards);
-            }).catch((error) => {
-                console.error("Error fetching dealer cards: ", error);
-            });
+    // const playDealerTurn = async () => {
+    //     try {
+    //         let dealerValue = null;
+    //         await getDealerCards().then((data) => {
+    //             console.log("Dealer hand: ", data);
+    //             dealerValue = calculateHandValue(data.Cards);
+    //         }).catch((error) => {
+    //             console.error("Error fetching dealer cards: ", error);
+    //         });
 
-            // Dealer hits until 17 or more
-            if (dealerValue < 17) {
-                updateInstruction("Deal card to dealer").then(() => {
-                    console.log("Instruction updated successfully");
-                }).catch((error) => {
-                    console.error("Error updating instruction: ", error);
-                });
+    //         // Dealer hits until 17 or more
+    //         if (dealerValue < 17) {
+    //             updateInstruction("Deal card to dealer").then(() => {
+    //                 console.log("Instruction updated successfully");
+    //             }).catch((error) => {
+    //                 console.error("Error updating instruction: ", error);
+    //             });
 
-                // Temporary
-                getRandomDealerCard().then(() => {
-                    console.log("Dealer hits and gets a card");
-                    playDealerTurn(); // Call again to check the new value
-                }).catch((error) => {
-                    console.error("Error dealing card to dealer: ", error);
-                });
-            }
-            else if (dealerValue > 21) {
-                updateInstruction("Dealer busts with " + dealerValue).then(() => {
-                    console.log("Instruction updated successfully");
-                }).catch((error) => {
-                    console.error("Error updating instruction: ", error);
-                });
-            }
-            else {
-                updateInstruction("Dealer stands with " + dealerValue).then(() => {
-                    console.log("Instruction updated successfully");
-                }).catch((error) => {
-                    console.error("Error updating instruction: ", error);
-                });
-            }
-            setUpdate(true);
-        } catch (err) {
-            console.error("Error during dealer's turn:", err);
-        }
-    };
+    //             // updatePlayerTurn("").then(() => {
+    //             //     console.log("Player turn reset successfully");
+    //             // }).catch((error) => {
+    //             //     console.error("Error resetting player turn: ", error);
+    //             // });
 
-    useEffect(() => {
-        // Dealer's turn logic
-        if (
-            gameStatus.PlayerTurn === "dealer" &&
-            gameStatus.isPlaying &&
-            players.length > 0
-        ) {
-            playDealerTurn();
-        }
-        // eslint-disable-next-line
-    }, [gameStatus.PlayerTurn, gameStatus.isPlaying]);
+    //             // // Temporary
+    //             // getRandomDealerCard().then(() => {
+    //             //     console.log("Dealer hits and gets a card");
+    //             //     playDealerTurn(); // Call again to check the new value
+    //             // }).catch((error) => {
+    //             //     console.error("Error dealing card to dealer: ", error);
+    //             // });
+
+    //             // updatePlayerTurn("dealer").then(() => {
+    //             //     console.log("Player turn reset to dealer successfully");
+    //             // }).catch((error) => {
+    //             //     console.error("Error set player turn to dealer: ", error);
+    //             // });
+    //         }
+    //         else if (dealerValue > 21) {
+    //             updateInstruction("Dealer busts with " + dealerValue).then(() => {
+    //                 console.log("Instruction updated successfully");
+    //             }).catch((error) => {
+    //                 console.error("Error updating instruction: ", error);
+    //             });
+    //         }
+    //         else {
+    //             updateInstruction("Dealer stands with " + dealerValue).then(() => {
+    //                 console.log("Instruction updated successfully");
+    //             }).catch((error) => {
+    //                 console.error("Error updating instruction: ", error);
+    //             });
+    //         }
+    //         setUpdate(true);
+    //     } catch (err) {
+    //         console.error("Error during dealer's turn:", err);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     // Dealer's turn logic
+    //     if (
+    //         gameStatus.PlayerTurn === "dealer" &&
+    //         gameStatus.isPlaying &&
+    //         players.length > 0
+    //     ) {
+    //         playDealerTurn();
+    //     }
+    //     // eslint-disable-next-line
+    // }, [gameStatus.PlayerTurn, gameStatus.isPlaying]);
 
     return (
         <>

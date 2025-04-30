@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { addNewPlayer, auth, getActivePlayersWithCards, getDealerCards, getGamestatus, getPlayerAction, getPlayerCards, removePlayer, updatePlayerAction } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { calculateHandValue } from '../Data/cards';
 
 const Player = () => {
     const { user } = useAuth();
@@ -46,31 +47,6 @@ const Player = () => {
         
         navigate('/');
     }
-
-    // Calculate the value of the player's hands
-    const calculateHandValue = (hand) => {
-        let total = 0;
-        let aces = 0;
-
-        hand.forEach(([value]) => {
-            if (value === 1) {
-                aces += 1;
-                total += 11; // Treat Ace as 11 initially
-            } else if (value >= 11 && value <= 13) {
-                total += 10; // Face cards are worth 10
-            } else {
-                total += value;
-            }
-        });
-
-        // Adjust for Aces if total exceeds 21
-        while (total > 21 && aces > 0) {
-            total -= 10;
-            aces -= 1;
-        }
-
-        return total;
-    };
 
     const fetchData = () => {
         getPlayerCards(user.uid).then((data) => {
@@ -179,7 +155,7 @@ const Player = () => {
         setUpdate(false);
         fetchData();
 
-        const intervalId = setInterval(fetchData, 5000); // Fetch every 5 seconds
+        const intervalId = setInterval(fetchData, 2000); // Fetch every 2 seconds
 
         return () => clearInterval(intervalId); // Cleanup on unmount
     }, [update]);
@@ -399,7 +375,7 @@ const Player = () => {
                                         );
                                     })}
                                 </div>
-                                {value[handIndex] > 21 && (
+                                {value > 21 && (
                                     <div style={{
                                         position: 'absolute',
                                         top: '50%',
@@ -444,7 +420,7 @@ const Player = () => {
                                     </div>
                                 );
                             })}
-                            {value[primaryHand] > 21 && (
+                            {value > 21 && (
                                 <div style={{
                                     position: 'absolute',
                                     top: '50%',
@@ -602,6 +578,16 @@ const Player = () => {
                         ))}
                     </div>
                 </div>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                {gameStatus?.Instruction.includes("Dealer stands with") || gameStatus?.Instruction.includes("Dealer busts with") && ( // FIX ME
+                    <>
+                        {((value > calculateHandValue(dealerCards) && value <= 21) || (calculateHandValue(dealerCards) > 21 && value <= 21)) ? 
+                        (<h2 style={{ color: 'green' }}>You win</h2>)
+                        :                        
+                        (<h2 style={{ color: 'red' }}>Dealer wins</h2>)}
+                    </>
+                )}
             </div>
         </>
     );

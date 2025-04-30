@@ -233,10 +233,20 @@ export async function setPlaying(isPlaying) {
   }
 }
 
-export async function updateInstruction(cards) {
+export async function setInitialDealDone(isInitialDealDone) {
+  const gameStateRef = ref(database, 'Gamestatus/InitialDealDone');
+  try {
+    await set(gameStateRef, isInitialDealDone);
+    console.log("Initial deal state updated successfully");
+  } catch (error) {
+    console.error("Error updating initial deal state: ", error);
+  }
+}
+
+export async function updateInstruction(instruction) {
   const instructionRef = ref(database, 'Gamestatus/Instruction');
   try {
-    await set(instructionRef, cards);
+    await set(instructionRef, instruction);
     console.log("Instruction updated successfully");
   } catch (error) {
     console.error("Error updating instruction: ", error);
