@@ -12,7 +12,7 @@ const Player = () => {
     const [value, setValue] = useState([0]);
     const [dealerCards, setDealerCards] = useState([]);
     const [activePlayers, setActivePlayers] = useState([]);
-    const [showSecondDealerCard, setShowSecondDealerCard] = useState(false); // Boolean to control whether the second card is displayed
+    const [showSecondDealerCard, setShowSecondDealerCard] = useState(true); // Boolean to control whether the second card is displayed
     const [canHit, setCanHit] = useState(true); // Boolean to control whether the player can hit
     const [canDoubleDown, setCanDoubleDown] = useState(true); // Boolean to control whether the player can double down
     const [canSplit, setCanSplit] = useState(false); // Boolean to control whether the player can split
@@ -71,7 +71,6 @@ const Player = () => {
             console.log("Game status: ", data);
             setGameStatus(data);
             console.log("Player turn: ", data.PlayerTurn);
-            setShowSecondDealerCard(data.PlayerTurn === "dealer" ? true : false); // Show the second dealer card if it's the dealer's turn
         })
         .catch((error) => {
             console.error("Error fetching game status: ", error);
@@ -580,9 +579,9 @@ const Player = () => {
                 </div>
             </div>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                {gameStatus?.Instruction.includes("Dealer stands with") || gameStatus?.Instruction.includes("Dealer busts with") && ( // FIX ME
+                {(gameStatus?.Instruction.includes("Dealer stands with") || gameStatus?.Instruction.includes("Dealer busts with")) && ( // FIX ME
                     <>
-                        {((value > calculateHandValue(dealerCards) && value <= 21) || (calculateHandValue(dealerCards) > 21 && value <= 21)) ? 
+                        {calculateHandValue(cards) <= 21 && (value > calculateHandValue(dealerCards) || calculateHandValue(dealerCards) > 21 ) ? 
                         (<h2 style={{ color: 'green' }}>You win</h2>)
                         :                        
                         (<h2 style={{ color: 'red' }}>Dealer wins</h2>)}

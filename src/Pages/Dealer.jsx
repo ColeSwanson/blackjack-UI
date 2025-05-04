@@ -136,7 +136,7 @@ const Dealer = () => {
                     getPlayerAction(currentPlayer.UId).then((action) => {
                         if (action === "Stand") { // If last player, set turn to dealer
                             if (currentPlayerIndex === players.length - 1) {
-                                updatePlayerTurn("dealer").then(() => {
+                                updatePlayerTurn("Dealer").then(() => {
                                     console.log("Player turn set to dealer successfully");
                                     updateInstruction("Deal card to dealer").then(() => {
                                         console.log("Instruction updated successfully");
